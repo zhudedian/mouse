@@ -19,6 +19,8 @@ public class SocketServer {
     private InputStream in;
     private String str=null;
     private boolean isClint=false;
+    public static int size =15;
+    public static boolean beginrecieve = false;
     public static Handler ServerHandler;
 
     /**
@@ -61,7 +63,7 @@ public class SocketServer {
                          * */
                         while (!socket.isClosed())
                         {
-                            byte[] bt=new byte[50];
+                            byte[] bt=new byte[size];
                             in.read ( bt );
                             str=new String ( bt,"UTF-8" );                  //编码方式  解决收到数据乱码
                             if (str!=null&&str!="exit")
@@ -70,7 +72,7 @@ public class SocketServer {
                             }else if (str==null||str=="exit"){
                                 break;                                     //跳出循环结束socket数据接收
                             }
-                            System.out.println(str);
+                            //System.out.println(str);
                         }
                     } catch (IOException e) {
                         e.printStackTrace ( );
@@ -83,6 +85,7 @@ public class SocketServer {
             }
         } ).start ();
     }
+
 
     /**
      * @steps write();

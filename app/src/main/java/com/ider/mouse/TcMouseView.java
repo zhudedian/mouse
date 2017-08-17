@@ -46,6 +46,8 @@ public class TcMouseView extends FrameLayout {
 
     private int lastY2;
 
+
+
     private int mMoveDis =  TcMouseManager.MOUSE_MOVE_STEP;
 
 

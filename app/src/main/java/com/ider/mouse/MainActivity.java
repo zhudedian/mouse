@@ -52,73 +52,74 @@ public class MainActivity extends Activity {
 //        if (actionBar!=null){
 //            actionBar.hide();
 //        }
-        LayoutInflater inflater = getLayoutInflater();
-        contentView = (ViewGroup) inflater.inflate(R.layout.activity_main, null);
-        setContentView(contentView);
-//        Intent intent = new Intent(MainActivity.this,MouseService.class);
-//        startService(intent);
+//        LayoutInflater inflater = getLayoutInflater();
+//        contentView = (ViewGroup) inflater.inflate(R.layout.activity_main, null);
+//        setContentView(contentView);
+        Intent intent = new Intent(MainActivity.this,MouseService.class);
+        startService(intent);
+        finish();
 
-       init();
+//       init();
         //初始化
-        initMouse();
-        showMouse();
-        try {
-
-            server=new SocketServer ( 7777 );
-            /**socket服务端开始监听*/
-            server.beginListen ( );
-
-        }catch (Exception e){
-//            Toast.makeText ( MainActivity.this,"请输入数字", Toast.LENGTH_SHORT ).show ();
-            e.printStackTrace ();
-        }
-        SocketServer.ServerHandler = new Handler( ){
-            @Override
-            public void handleMessage(Message msg) {
-                Log.i("taggg",msg.obj.toString());
-                String[] pos = msg.obj.toString().split(" ");
-                int x;
-                int y;
-                Log.i("tag", "pos.length=" + pos.length);
-                if (pos[0].equals("onSingleTapUp")){
-                    mMouseManager.click();
-                    mMouseManager.resert();
-                    return;
-                }
-                if (pos[0].equals("nexttouch")){
-                    mMouseManager.resert();
-                    return;
-                }
-                if (pos[0].equals("scolor")){
-                    y = Integer.parseInt(pos[1]);
-                    mMouseManager.move(y);
-
-                    return;
-                }
-                try {
-                    if (pos.length == 3) {
-                        if (!pos[0].equals("") && !pos[1].equals("")) {
-                            x = Integer.parseInt(pos[0]);
-                            y = Integer.parseInt(pos[1]);
-                            Log.i("tag", "x=" + x + "y=" + y);
-                            mMouseManager.move(x, y);
-                        }
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-
-
-
-
-//                    Log.i("tag", "x=" + x + "y=" + y);
-//                    mMouseManager.move(x,x2, y ,y2);
-
-
-
-//                server.sendMessage ( "success" );
-            }
-        };
+//        initMouse();
+//        showMouse();
+//        try {
+//
+//            server=new SocketServer ( 7777 );
+//            /**socket服务端开始监听*/
+//            server.beginListen ( );
+//
+//        }catch (Exception e){
+////            Toast.makeText ( MainActivity.this,"请输入数字", Toast.LENGTH_SHORT ).show ();
+//            e.printStackTrace ();
+//        }
+//        SocketServer.ServerHandler = new Handler( ){
+//            @Override
+//            public void handleMessage(Message msg) {
+//                Log.i("taggg",msg.obj.toString());
+//                String[] pos = msg.obj.toString().split(" ");
+//                int x;
+//                int y;
+//                Log.i("tag", "pos.length=" + pos.length);
+//                if (pos[0].equals("onSingleTapUp")){
+//                    mMouseManager.click();
+//                    mMouseManager.resert();
+//                    return;
+//                }
+//                if (pos[0].equals("nexttouch")){
+//                    mMouseManager.resert();
+//                    return;
+//                }
+//                if (pos[0].equals("scolor")){
+//                    y = Integer.parseInt(pos[1]);
+//                    mMouseManager.move(y);
+//
+//                    return;
+//                }
+//                try {
+//                    if (pos.length == 3) {
+//                        if (!pos[0].equals("") && !pos[1].equals("")) {
+//                            x = Integer.parseInt(pos[0]);
+//                            y = Integer.parseInt(pos[1]);
+//                            Log.i("tag", "x=" + x + "y=" + y);
+//                            mMouseManager.move(x, y);
+//                        }
+//                    }
+//                }catch (Exception e){
+//                    e.printStackTrace();
+//                }
+//
+//
+//
+//
+////                    Log.i("tag", "x=" + x + "y=" + y);
+////                    mMouseManager.move(x,x2, y ,y2);
+//
+//
+//
+////                server.sendMessage ( "success" );
+//            }
+//        };
         //registReceivers();
 //        finish();
 
