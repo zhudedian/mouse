@@ -13,6 +13,7 @@
         android:id="@+id/btn_onclick"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="gone"
 
         android:text="请将鼠标移到点击此加载网页 "
         android:textSize="24dp" />
@@ -23,11 +24,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
+        android:visibility="gone"
         android:layout_marginLeft="100dp"
         android:layout_marginTop="200dp"
         android:textColor="#f79b9b"
         android:background="#8f8989"
-        android:textSize="100dp"
+        android:textSize="40dp"
         android:text="test"/>
 
     <LinearLayout
@@ -58,10 +60,10 @@
     </LinearLayout>
 
 
-    <WebView
-        android:id="@+id/web"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        android:layout_below="@+id/btn_onclick" />
+
+    <ImageView
+        android:id="@+id/image_view"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_centerInParent="true"/>
 </RelativeLayout>

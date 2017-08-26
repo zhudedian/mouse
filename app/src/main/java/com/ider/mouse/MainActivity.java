@@ -3,36 +3,45 @@ package com.ider.mouse;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
+import android.os.Environment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ider.mouse.util.QRCodeUtil;
+import com.ider.mouse.util.RequestFileHandler;
+import com.ider.mouse.util.RequestUploadHandler;
 import com.ider.mouse.util.SocketServer;
+import com.yanzhenjie.andserver.AndServer;
+import com.yanzhenjie.andserver.Server;
+import com.yanzhenjie.andserver.website.StorageWebsite;
+import com.yanzhenjie.andserver.website.WebSite;
 
+import java.io.File;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
-
-import static com.ider.mouse.TcMouseView.mMouseX;
-import static com.ider.mouse.TcMouseView.mMouseY;
+import java.util.Enumeration;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
     private TcMouseManager mMouseManager;
 
@@ -40,24 +49,60 @@ public class MainActivity extends Activity {
     private WebView webView;
     private View mLoginStatusView;
     TextView textView,test;
+    private ImageView imageView;
     private TextView mLoaddingMessageView;
 
     private int pite;
     private SocketServer server;
+    private String ip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        ActionBar actionBar= getSupportActionBar();
-//        if (actionBar!=null){
-//            actionBar.hide();
-//        }
-//        LayoutInflater inflater = getLayoutInflater();
-//        contentView = (ViewGroup) inflater.inflate(R.layout.activity_main, null);
-//        setContentView(contentView);
+        ActionBar actionBar= getSupportActionBar();
+        if (actionBar!=null){
+            actionBar.hide();
+        }
+        Log.i("Environment.getPath()=",Environment.getExternalStorageDirectory().getPath());
+        LayoutInflater inflater = getLayoutInflater();
+        contentView = (ViewGroup) inflater.inflate(R.layout.activity_main, null);
+        setContentView(contentView);
+        test = (TextView) findViewById(R.id.test);
+        imageView = (ImageView)findViewById(R.id.image_view);
         Intent intent = new Intent(MainActivity.this,MouseService.class);
         startService(intent);
-        finish();
+        //finish();
+        Log.i("getHOstIP",getHostIP()+" ");
+        if (getHostIP() == null){
+            imageView.setVisibility(View.GONE);
+            test.setVisibility(View.VISIBLE);
+            test.setText("未连接网络");
+            return;
+        }
+
+        ip = "http://"+getHostIP()+":8080/youtube1111";
+
+        final String filePath = getFileRoot(MainActivity.this) + File.separator
+                + "qr_" + System.currentTimeMillis() + ".jpg";
+
+        //二维码图片较大时，生成图片、保存文件的时间可能较长，因此放在新线程中
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                boolean success = QRCodeUtil.createQRImage(ip, 300, 300,
+                        BitmapFactory.decodeResource(getResources(),R.mipmap.ic_launcher),
+                        filePath);
+
+                if (success) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            imageView.setImageBitmap(BitmapFactory.decodeFile(filePath));
+                        }
+                    });
+                }
+            }
+        }).start();
 
 //       init();
         //初始化
@@ -123,7 +168,65 @@ public class MainActivity extends Activity {
         //registReceivers();
 //        finish();
 
+
+
     }
+    private String getFileRoot(Context context) {
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            File external = context.getExternalFilesDir(null);
+            if (external != null) {
+                return external.getAbsolutePath();
+            }
+        }
+
+        return context.getFilesDir().getAbsolutePath();
+    }
+
+    public static String getHostIP() {
+
+        String hostIp = null;
+        try {
+            Enumeration nis = NetworkInterface.getNetworkInterfaces();
+            InetAddress ia = null;
+            while (nis.hasMoreElements()) {
+                NetworkInterface ni = (NetworkInterface) nis.nextElement();
+                Enumeration<InetAddress> ias = ni.getInetAddresses();
+                while (ias.hasMoreElements()) {
+                    ia = ias.nextElement();
+                    if (ia instanceof Inet6Address) {
+                        continue;// skip ipv6
+                    }
+                    String ip = ia.getHostAddress();
+                    if (!"127.0.0.1".equals(ip)) {
+                        hostIp = ia.getHostAddress();
+                        break;
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            Log.i("yao", "SocketException");
+            e.printStackTrace();
+        }
+        return hostIp;
+
+    }
+
+    private Server.Listener mListener = new Server.Listener() {
+        @Override
+        public void onStarted() {
+
+        }
+
+        @Override
+        public void onStopped() {
+
+        }
+
+        @Override
+        public void onError(Exception e) {
+            // Ports may be occupied.
+        }
+    };
     public View getViewAtActivity(int x, int y) {
         // 从Activity里获取容器
         View root = getWindow().getDecorView();
@@ -198,12 +301,12 @@ public class MainActivity extends Activity {
 
     private void init() {
 
-        webView = (WebView) contentView.findViewById(R.id.web);
+//        webView = (WebView) contentView.findViewById(R.id.web);
         mLoginStatusView = this.findViewById(R.id.login_status);
         mLoaddingMessageView = (TextView) this
                 .findViewById(R.id.login_status_message);
         textView = (TextView) contentView.findViewById(R.id.btn_onclick);
-        test = (TextView) findViewById(R.id.test);
+
         test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -216,48 +319,48 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 Toast.makeText(MainActivity.this, "onclicked ", Toast.LENGTH_SHORT).show();
                 showProgress(true);
-                webView.setVisibility(View.VISIBLE);
-
-                webView.loadUrl("https://www.baidu.com/");
-                WebSettings settings = webView.getSettings();
-                settings.setJavaScriptEnabled(true);
-                webView.setWebViewClient(new WebViewClient() {
-                    @Override
-                    public boolean shouldOverrideUrlLoading(WebView view,
-                                                            String url) {
-                        // 返回值是true的时候控制去WebView打开，为false调用系统浏览器或第三方浏览器
-                        view.loadUrl(url);
-                        return true;
-                    }
-
-                    @Override
-                    public void onPageFinished(WebView view, String url) {
-
-                        super.onPageFinished(view, url);
-                    }
-
-                    @Override
-                    public void onReceivedError(WebView view, int errorCode,
-                                                String description, String failingUrl) {
-                        Toast.makeText(MainActivity.this, "加载失败 ",
-                                Toast.LENGTH_LONG).show();
-                        super.onReceivedError(view, errorCode, description,
-                                failingUrl);
-                    }
-
-                });
-
-                webView.setWebChromeClient(new WebChromeClient() {
-                    @Override
-                    public void onProgressChanged(WebView view, int newProgress) {
-                        // TODO Auto-generated method stub
-                        if (newProgress == 100) {
-                            showProgress(false);
-
-                        }
-                    }
-
-                });
+//                webView.setVisibility(View.VISIBLE);
+//
+//                webView.loadUrl("https://www.baidu.com/");
+//                WebSettings settings = webView.getSettings();
+//                settings.setJavaScriptEnabled(true);
+//                webView.setWebViewClient(new WebViewClient() {
+//                    @Override
+//                    public boolean shouldOverrideUrlLoading(WebView view,
+//                                                            String url) {
+//                        // 返回值是true的时候控制去WebView打开，为false调用系统浏览器或第三方浏览器
+//                        view.loadUrl(url);
+//                        return true;
+//                    }
+//
+//                    @Override
+//                    public void onPageFinished(WebView view, String url) {
+//
+//                        super.onPageFinished(view, url);
+//                    }
+//
+//                    @Override
+//                    public void onReceivedError(WebView view, int errorCode,
+//                                                String description, String failingUrl) {
+//                        Toast.makeText(MainActivity.this, "加载失败 ",
+//                                Toast.LENGTH_LONG).show();
+//                        super.onReceivedError(view, errorCode, description,
+//                                failingUrl);
+//                    }
+//
+//                });
+//
+//                webView.setWebChromeClient(new WebChromeClient() {
+//                    @Override
+//                    public void onProgressChanged(WebView view, int newProgress) {
+//                        // TODO Auto-generated method stub
+//                        if (newProgress == 100) {
+//                            showProgress(false);
+//
+//                        }
+//                    }
+//
+//                });
 
             }
         });

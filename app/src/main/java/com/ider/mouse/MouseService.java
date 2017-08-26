@@ -11,9 +11,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.inputmethodservice.InputMethodService;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
@@ -25,37 +28,59 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 
+import com.ider.mouse.util.PackageUtils;
+import com.ider.mouse.util.QRCodeUtil;
+import com.ider.mouse.util.RequestFileHandler;
+import com.ider.mouse.util.RequestUploadHandler;
 import com.ider.mouse.util.SocketServer;
+import com.yanzhenjie.andserver.AndServer;
+import com.yanzhenjie.andserver.Server;
+import com.yanzhenjie.andserver.website.StorageWebsite;
+import com.yanzhenjie.andserver.website.WebSite;
 
+import java.io.File;
+
+import static com.ider.mouse.MainActivity.getHostIP;
 import static com.ider.mouse.MyApplication.getContext;
+import static com.ider.mouse.R.id.default_activity_button;
+import static com.ider.mouse.R.id.test;
+import static com.ider.mouse.util.PackageUtils.installSlient;
+
 @SuppressLint("NewApi")
 public class MouseService extends AccessibilityService {
 
     private WindowManager mWindowManager;
     private InputMethodManager inputMethodManager;
+    private InputConnection inputConnection;
     private ClipboardManager cm;
     private WindowManager.LayoutParams mLayoutParams;
     private LayoutInflater mLayoutInflater;
-    private ImageView mFloatView;
+    private static ImageView mFloatView;
     private Bitmap mMouseBitmap;
     private int displayWidth;
     private int displayHeight;
     private int mCurrentX;
     private int mCurrentY;
     private int mLastMouseX;
-
     private int mLastMouseY;
     private int moveX,moveY ;
     private Instrumentation instrumentation = new Instrumentation();
     private static int mFloatViewWidth = 50;
     private static int mFloatViewHeight = 80;
-    private SocketServer server;
+    private static SocketServer server;
     private String info,infoMobi;
     private int size;
     private KeyEvent ctrlDown,ctrlUp,aDown,aUp,vDown ,vUp ;
+    private boolean startCountEnd = false,isCountGone=true,isStart = false;
+    private int endCount,goneTimes;
+    public static Server mServer;
+    private boolean isEnd =false;
+    public static File installApk ;
+
 
     public MouseService() {
     }
@@ -65,13 +90,15 @@ public class MouseService extends AccessibilityService {
     public void onCreate(){
         super.onCreate();
         inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodService inputMethodService = new InputMethodService();
+        inputConnection = inputMethodService.getCurrentInputConnection();
         mWindowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
         cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         mLayoutInflater = LayoutInflater.from(this);
         displayHeight = mWindowManager.getDefaultDisplay().getHeight();
         displayWidth = mWindowManager.getDefaultDisplay().getWidth();
 
-        ctrlDown = new KeyEvent(0,0,KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_CTRL_LEFT,10);
+        ctrlDown = new KeyEvent(KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_CTRL_LEFT);
         ctrlUp = new KeyEvent(KeyEvent.ACTION_UP,KeyEvent.KEYCODE_CTRL_LEFT);
         aDown = new KeyEvent(KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_A);
         aUp = new KeyEvent(KeyEvent.ACTION_UP,KeyEvent.KEYCODE_A);
@@ -103,25 +130,71 @@ public class MouseService extends AccessibilityService {
                         Log.i("infoMobi", infoMobi);
                         ClipData clip = ClipData.newPlainText("simple text", infoMobi);
                         cm.setPrimaryClip(clip);
-                        copy();
+                        Intent intent = new Intent("commitMobileInfo");
+                        intent.putExtra("info",infoMobi);
+                        sendBroadcast(intent);
+//                        copy();
+//                        sendBack();
+                        endCount = 0;
                         return;
                     }else if (info.contains("inEndEndEndEndE")){
+                        endCount = 0;
                         return;
                     }else {
                         server.sendMessage("recieveOready");
+                        endCount = 0;
+                        return;
                     }
                 }
                 if (info.contains("inBeginBeginBeg")) {
                     SocketServer.size = 300;
                     server.sendMessage("recieveOready");
+                    endCount = 0;
+                    return;
                 } else {
                     String[] pos = info.split(" ");
                     for (int i = 0; i < pos.length; i++) {
                         if (pos[i].contains("c")) {
                             handCom(pos[i]);
+                            endCount = 0;
+                            return;
                         }
                     }
                 }
+
+                if (endCount >= 4){
+                    if (!isEnd){
+                        isEnd = true;
+                        server.endListen();
+                        try {
+                            new Thread(){
+                                @Override
+                                public void run(){
+                                    try {
+                                        sleep(1000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    isEnd = false;
+                                    if (server==null){
+                                        server=new SocketServer ( 7777 );
+                                    }
+                                    /**socket服务端开始监听*/
+                                    server.beginListen ( );
+                                    Log.i("begin","beginListen");
+                                }
+                            }.start();
+
+                        }catch (Exception e){
+                            e.printStackTrace ();
+                        }
+                    }
+                    endCount = 0;
+                }else {
+                    endCount++;
+                    Log.i("count",endCount+"");
+                }
+
             }
 
         };
@@ -129,34 +202,43 @@ public class MouseService extends AccessibilityService {
         intentFilter.addAction("InputMethodOpen");
         intentFilter.addAction("InputMethodClose");
         intentFilter.addAction("TextInfo");
+        intentFilter.addAction("WebTextInfo");
         registerReceiver(myReceiver,intentFilter);
 
 
-
-
     }
+
     BroadcastReceiver myReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals("InputMethodOpen")){
                 server.sendMessage("InOp ");
+                Intent intent1 = new Intent("getWebTextInfo");
+                sendBroadcast(intent1);
             }else if (intent.getAction().equals("InputMethodClose")){
                 server.sendMessage("InCl ");
             }else if (intent.getAction().equals("TextInfo")){
-                if (info == null){
-                    info = intent.getStringExtra("info");
-                    String msg = "Info"+info+"R,T;Y.";
-                    server.sendMessage(msg);
-                }else {
-                    String infor = intent.getStringExtra("info");
-                    Log.i("infor",infor);
-                    if (!info.equals(infor)){
-                        info = infor;
-                        String msg = "Info"+info+"R,T;Y.";
-                        server.sendMessage(msg);
-                    }
-                }
+//                if (info == null){
+//                    info = intent.getStringExtra("info");
+//                    String msg = "Info"+info+"R,T;Y.";
+//                    server.sendMessage(msg);
+//                }else {
+//                    String infor = intent.getStringExtra("info");
+//                    Log.i("infor",infor);
+//                    if (!info.equals(infor)){
+//                        info = infor;
+//                        String msg = "Info"+info+"R,T;Y.";
+//                        server.sendMessage(msg);
+//                    }
+//                }
+            }else if (intent.getAction().equals("WebTextInfo")){
+                info = intent.getStringExtra("info");
+                Log.i("WebTextInfo", info);
+                String msg = "Info"+info+"R,T;Y.";
+                server.sendMessage(msg);
+
             }
+
         }
     };
     @Override
@@ -303,7 +385,9 @@ public class MouseService extends AccessibilityService {
         if (com.contains("cb")){
             server.sendMessage("back");
             sendBack();
+            return;
         }
+
     }
     private void copy(){
         new Thread(){
@@ -331,9 +415,11 @@ public class MouseService extends AccessibilityService {
         new Thread(new Runnable() {
             @Override
             public void run() {
+
                 instrumentation.sendPointerSync(MotionEvent.obtain(SystemClock.uptimeMillis(),SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, mCurrentX+8, mCurrentY+5, 0));
             }
         }).start();
+        updateFloatView();
     }
     private void moves(int x, int y){
         moveX = x;
@@ -345,6 +431,7 @@ public class MouseService extends AccessibilityService {
 //                inst.sendPointerSync(MotionEvent.obtain(SystemClock.uptimeMillis(),SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, mMouseX+8, mMouseY-25, 0));
             }
         }).start();
+        updateFloatView();
     }
     private void up(int x,int y){
         moveX = x;
@@ -355,6 +442,7 @@ public class MouseService extends AccessibilityService {
                 instrumentation.sendPointerSync(MotionEvent.obtain(SystemClock.uptimeMillis(),SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, mCurrentX+moveX+8, mCurrentY+moveY+5, 0));
             }
         }).start();
+        updateFloatView();
     }
     private void click(){
         new Thread(new Runnable() {
@@ -368,12 +456,14 @@ public class MouseService extends AccessibilityService {
                 }
             }
         }).start();
+        updateFloatView();
     }
     private void resert(){
         mLastMouseX = mCurrentX;
         mLastMouseY = mCurrentY;
     }
     private void move(int x, int y){
+        mFloatView.setVisibility(View.VISIBLE);
         mCurrentX = mLastMouseX+x;
         mCurrentY = mLastMouseY+y;
         if (mCurrentY<0){
@@ -392,6 +482,19 @@ public class MouseService extends AccessibilityService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
         createView();
+        updateFloatView();
+        File file = new File("/system/", "preinstall");
+        String websiteDirectory = file.getAbsolutePath();
+        WebSite wesite = new StorageWebsite(websiteDirectory);
+        AndServer andServer = new AndServer.Build()
+                .port(8080) // 默认是8080，Android平台允许的端口号都可以。
+                .registerHandler("upload", new RequestUploadHandler(handler))
+                .registerHandler("youtube1111", new RequestFileHandler("/system/preinstall/Netflix_v4.16.1_build_15145_apkpure.com.apk"))
+                .timeout(10 * 1000) // 默认10 * 1000毫秒。
+                .website(wesite)
+                .build();
+        mServer = andServer.createServer();
+        mServer.start();
         return super.onStartCommand(intent,flags,startId);
     }
     @Override
@@ -403,6 +506,9 @@ public class MouseService extends AccessibilityService {
     private void createView() {
         // TODO Auto-generated method stub
         //加载布局文件
+        if (mFloatView !=null){
+            return;
+        }
         Drawable drawable =	getResources().getDrawable(
                 R.mipmap.shubiao);
         mMouseBitmap = drawableToBitamp(drawable);
@@ -429,6 +535,7 @@ public class MouseService extends AccessibilityService {
         mLayoutParams.height = 30;
         //将视图添加到Window中
         mWindowManager.addView(mFloatView, mLayoutParams);
+
     }
     private Bitmap drawableToBitamp(Drawable drawable) {
 
@@ -441,7 +548,63 @@ public class MouseService extends AccessibilityService {
         mLayoutParams.x = mCurrentX;
         mLayoutParams.y = mCurrentY;
         mWindowManager.updateViewLayout(mFloatView, mLayoutParams);
+        if (!isStart){
+            goneTimes = 0;
+            isStart = true;
+            new Thread(){
+                @Override
+                public void run(){
+                    isCountGone =false;
+                    try {
+                        sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    isStart = false;
+                    isCountGone = true;
+                    new Thread(){
+                        @Override
+                        public void run(){
+                            while (isCountGone){
+                                goneTimes ++;
+                                try {
+                                    sleep(1000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                if (goneTimes>=10){
+                                    goneTimes = 0;
+                                    handler.sendEmptyMessage(1);
+                                }
+                            }
+                        }
+                    }.start();
+                }
+            }.start();
+        }
     }
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case 1:
+                    mFloatView.setVisibility(View.GONE);
+                    break;
+                case 2:
+                    int result = 2;
+                    if (installApk != null){
+                        result = PackageUtils.installSlient(installApk.getPath());
+                    }
+                    Log.i("result","result= "+result);
+                    if (result==0){
+                        installApk.delete();
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
     /*处理视图的拖动，这里只对Move事件做了处理，用户也可以对点击事件做处理，例如：点击浮动窗口时，启动应用的主Activity*/
     private class OnFloatViewTouchListener implements View.OnTouchListener {
         @Override

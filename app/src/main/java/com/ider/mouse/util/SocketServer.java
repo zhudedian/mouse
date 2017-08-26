@@ -14,7 +14,7 @@ import java.net.Socket;
  */
 
 public class SocketServer {
-    private ServerSocket server;
+    private static ServerSocket server;
     private Socket socket;
     private InputStream in;
     private String str=null;
@@ -31,7 +31,6 @@ public class SocketServer {
     public SocketServer(int port){
         try {
             server= new ServerSocket ( port );
-            isClint=true;
         }catch (IOException e){
             e.printStackTrace ();
         }
@@ -44,6 +43,7 @@ public class SocketServer {
      * */
     public void beginListen()
     {
+        isClint=true;
         new Thread ( new Runnable ( )
         {
             @Override
@@ -61,7 +61,7 @@ public class SocketServer {
                         /**
                          * 实现数据循环接收
                          * */
-                        while (!socket.isClosed())
+                        while (isClint&&!socket.isClosed())
                         {
                             byte[] bt=new byte[size];
                             in.read ( bt );
@@ -74,13 +74,13 @@ public class SocketServer {
                             }
                             //System.out.println(str);
                         }
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         e.printStackTrace ( );
-                        socket.isClosed ();
+//                        socket.isClosed ();
                     }
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace ( );
-                    socket.isClosed ();
+//                    socket.isClosed ();
                 }
             }
         } ).start ();
@@ -102,7 +102,7 @@ public class SocketServer {
                     PrintWriter out=new PrintWriter ( socket.getOutputStream () );
                     out.print ( chat );
                     out.flush ();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace ( );
                 }
             }
@@ -118,5 +118,14 @@ public class SocketServer {
         Message msg=new Message ();
         msg.obj=chat;
         ServerHandler.sendMessage ( msg );
+    }
+    public void endListen(){
+        isClint = false;
+//        try {
+//            server.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
     }
 }
