@@ -28,4 +28,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile files('src/main/lib/andserver-1.0.3.jar')
     compile files('src/main/lib/zixing-core-3.2.0.jar')
+    compile 'com.squareup.okhttp3:okhttp:3.8.1'
 }

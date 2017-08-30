@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.ider.mouse.MouseService;
+import com.ider.mouse.db.MyData;
 import com.yanzhenjie.andserver.RequestHandler;
 import com.yanzhenjie.andserver.upload.HttpFileUpload;
 import com.yanzhenjie.andserver.upload.HttpUploadContext;
@@ -43,7 +44,7 @@ public class RequestUploadHandler implements RequestHandler {
             response(403, "You must upload file.", response);
         } else {
             // File save directory.
-            final File saveDirectory = new File("/storage/emulated/0/Music/");
+            final File saveDirectory = new File(MyData.serverPath);
             Log.i("filepath",Environment.getExternalStorageDirectory().getPath());
             Log.i("filepath","saveDirectory.isDirectory()");
             if (saveDirectory.isDirectory()) {

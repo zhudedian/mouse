@@ -32,6 +32,7 @@ import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 
+import com.ider.mouse.db.MyData;
 import com.ider.mouse.util.PackageUtils;
 import com.ider.mouse.util.QRCodeUtil;
 import com.ider.mouse.util.RequestFileHandler;
@@ -48,6 +49,7 @@ import static com.ider.mouse.MainActivity.getHostIP;
 import static com.ider.mouse.MyApplication.getContext;
 import static com.ider.mouse.R.id.default_activity_button;
 import static com.ider.mouse.R.id.test;
+import static com.ider.mouse.db.MyData.andServer;
 import static com.ider.mouse.util.PackageUtils.installSlient;
 
 @SuppressLint("NewApi")
@@ -115,6 +117,18 @@ public class MouseService extends AccessibilityService {
 
             e.printStackTrace ();
         }
+        File file = new File("/system/", "preinstall");
+        String websiteDirectory = file.getAbsolutePath();
+        WebSite wesite = new StorageWebsite(websiteDirectory);
+        MyData.andServer = new AndServer.Build()
+                .port(8080) // 默认是8080，Android平台允许的端口号都可以。
+                .registerHandler("upload", new RequestUploadHandler(handler))
+                .registerHandler("down", new RequestFileHandler())
+                .timeout(10 * 1000) // 默认10 * 1000毫秒。
+                .website(wesite)
+                .build();
+        mServer = MyData.andServer.createServer();
+        mServer.start();
         SocketServer.ServerHandler = new Handler( ){
             @Override
             public void handleMessage(Message msg) {
@@ -387,6 +401,26 @@ public class MouseService extends AccessibilityService {
             sendBack();
             return;
         }
+        if (com.contains("coup")){
+            sendUp();
+            return;
+        }
+        if (com.contains("codown")){
+            sendDown();
+            return;
+        }
+        if (com.contains("coleft")){
+            sendLeft();
+            return;
+        }
+        if (com.contains("coright")){
+            sendRight();
+            return;
+        }
+        if (com.contains("cocenter")){
+            sendCenter();
+            return;
+        }
 
     }
     private void copy(){
@@ -405,6 +439,61 @@ public class MouseService extends AccessibilityService {
             public void run() {
                 try{
                     instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+                }
+                catch (Exception e) {
+                }
+            }
+        }.start();
+    }
+    private void sendCenter(){
+        new Thread(){
+            public void run() {
+                try{
+                    instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER);
+                }
+                catch (Exception e) {
+                }
+            }
+        }.start();
+    }
+    private void sendUp(){
+        new Thread(){
+            public void run() {
+                try{
+                    instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_UP);
+                }
+                catch (Exception e) {
+                }
+            }
+        }.start();
+    }
+    private void sendDown(){
+        new Thread(){
+            public void run() {
+                try{
+                    instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_DOWN);
+                }
+                catch (Exception e) {
+                }
+            }
+        }.start();
+    }
+    private void sendLeft(){
+        new Thread(){
+            public void run() {
+                try{
+                    instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_LEFT);
+                }
+                catch (Exception e) {
+                }
+            }
+        }.start();
+    }
+    private void sendRight(){
+        new Thread(){
+            public void run() {
+                try{
+                    instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_RIGHT);
                 }
                 catch (Exception e) {
                 }
@@ -433,6 +522,7 @@ public class MouseService extends AccessibilityService {
         }).start();
         updateFloatView();
     }
+
     private void up(int x,int y){
         moveX = x;
         moveY = y;
@@ -483,18 +573,7 @@ public class MouseService extends AccessibilityService {
     public int onStartCommand(Intent intent, int flags, int startId){
         createView();
         updateFloatView();
-        File file = new File("/system/", "preinstall");
-        String websiteDirectory = file.getAbsolutePath();
-        WebSite wesite = new StorageWebsite(websiteDirectory);
-        AndServer andServer = new AndServer.Build()
-                .port(8080) // 默认是8080，Android平台允许的端口号都可以。
-                .registerHandler("upload", new RequestUploadHandler(handler))
-                .registerHandler("youtube1111", new RequestFileHandler("/system/preinstall/Netflix_v4.16.1_build_15145_apkpure.com.apk"))
-                .timeout(10 * 1000) // 默认10 * 1000毫秒。
-                .website(wesite)
-                .build();
-        mServer = andServer.createServer();
-        mServer.start();
+
         return super.onStartCommand(intent,flags,startId);
     }
     @Override
