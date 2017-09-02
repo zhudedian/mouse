@@ -25,14 +25,13 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Created by Eric on 2017/8/25.
+ * Created by Eric on 2017/8/31.
  */
 
-public class RequestUploadHandler implements RequestHandler {
-
+public class RequestInstallHandler implements RequestHandler {
     private Handler mHandler;
 
-    public RequestUploadHandler(Handler handler){
+    public RequestInstallHandler(Handler handler){
         super();
         mHandler = handler;
     }
@@ -43,13 +42,15 @@ public class RequestUploadHandler implements RequestHandler {
         if (!HttpFileUpload.isMultipartContentWithPost(request)) { // Is POST and upload.
             response(403, "You must upload file.", response);
         } else {
-            String savePath = request.getFirstHeader("savePath").getValue();
             // File save directory.
-            final File saveDirectory = new File(savePath);
-            if (!saveDirectory.exists()){
-                saveDirectory.mkdirs();
+            final File saveDirectory = new File(Environment.getExternalStorageDirectory().getPath()+"/install_");
+            if (saveDirectory.exists()){
+                saveDirectory.delete();
+                saveDirectory.mkdir();
+            }else {
+                saveDirectory.mkdir();
             }
-            Log.i("filepath",Environment.getExternalStorageDirectory().getPath());
+            Log.i("filepath", Environment.getExternalStorageDirectory().getPath());
             Log.i("filepath","saveDirectory.isDirectory()");
             if (saveDirectory.isDirectory()) {
                 Log.i("filepath","saveDirectory.isDirectory()2");
@@ -104,11 +105,12 @@ public class RequestUploadHandler implements RequestHandler {
                 File uploadedFile = new File(saveDirectory, fileItem.getName());
                 // 把流写到文件上。
                 fileItem.write(uploadedFile);
+                MouseService.installApk = uploadedFile;
+                mHandler.sendEmptyMessage(2);
             } else { // General param.
                 String key = fileItem.getName();
                 String value = fileItem.getString();
             }
         }
     }
-
 }

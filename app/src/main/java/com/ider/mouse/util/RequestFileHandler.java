@@ -31,8 +31,13 @@ import static android.R.attr.key;
 public class RequestFileHandler implements RequestHandler {
 
     private String mFilePath = MyData.serverPath;
+    private String parentPath;
+    private String comments;
+    private String downLoadPath = "";
+    private File downLoadFile;
     private File mFile;
-
+    private String fileName;
+    private String info="";
     public RequestFileHandler() {
 
     }
@@ -41,43 +46,60 @@ public class RequestFileHandler implements RequestHandler {
     public void handle(HttpRequest request, HttpResponse response, HttpContext context) throws HttpException, IOException {
         // You can according to the client param can also be downloaded.
         Log.i("MyData.serverPath",MyData.serverPath);
-        String fileName = request.getFirstHeader("comment").getValue();
-        Log.i("method",fileName);
-        fileName = unicodetoString(fileName);
-        Log.i("method",fileName);
-        if (fileName.contains("\"delete=\"")){
-            fileName= fileName.replace("\"delete=\"","");
-            if (mFilePath.equals("/")){
-                mFilePath = mFilePath+fileName;
-            }else {
-                mFilePath = mFilePath+"/"+fileName;
+        comments = request.getFirstHeader("comment").getValue();
+        Log.i("comments",comments);
+        comments = unicodetoString(comments);
+        Log.i("comments",comments);
+        if (comments.contains("\"downLoad=\"")){
+            downLoadPath= comments.replace("\"downLoad=\"","");
+            Log.i("downLoadPath",downLoadPath);
+            downLoadFile = new File(downLoadPath);
+            if (downLoadFile.exists()) {
+                response.setStatusCode(200);
+                long contentLength = downLoadFile.length();
+                response.setHeader("ContentLength", Long.toString(contentLength));
+                response.setEntity(new FileEntity(downLoadFile, HttpRequestParser.getMimeType(downLoadFile.getName())));
             }
-            mFile = new File(mFilePath);
-            mFilePath = mFile.getParent();
-            mFile.delete();
-        }else if (fileName.equals("comment_back")){
-            if (mFilePath.equals("/")){
-                response.setEntity(new StringEntity("top", "utf-8"));
-                return;
-            }
-            mFilePath = mFile.getParent();
-            Log.i("mFilePath",mFilePath);
-        }else {
-            if (!fileName.equals("")){
-                if (mFilePath.equals("/")){
-                    mFilePath = mFilePath+fileName;
-                }else {
-                    mFilePath = mFilePath+"/"+fileName;
+            return;
+        }else if (comments.contains("\"delete=\"")){
+            comments= comments.replace("\"delete=\"","");
+            String[] files = comments.split("name=");
+            parentPath = files[0];
+            for (int i=1;i<files.length;i++){
+                if (!files[i].equals("")) {
+                    if (parentPath.equals("/")) {
+                        mFilePath = parentPath + files[i];
+                    } else {
+                        mFilePath = parentPath + "/" + files[i];
+                    }
+                    mFile = new File(mFilePath);;
+                    if (mFile.isDirectory()&&mFile.exists()){
+                        dirDelete(mFile);
+                    }else {
+                        if (mFile.exists()) {
+                            mFile.delete();
+                        }
+                    }
+
                 }
-
             }
-
+            mFilePath = parentPath;
+        }else if (comments.equals("\"commonBack\"")){
+            comments= comments.replace("\"commonBack\"","");
+            mFile = new File(comments);
+            mFilePath = mFile.getParent();
+        }else {
+            if (comments.equals("")){
+                mFilePath = MyData.serverPath;
+            }else {
+                mFilePath = comments;
+            }
         }
         Log.i("mFilePath",mFilePath);
         mFile = new File(mFilePath);
-        String info="";
+        info = mFilePath;
         if (mFile.isDirectory()){
-            Log.i("info","info");
+            Log.i("info",info);
             response.setStatusCode(403);
             File[] files = mFile.listFiles();
             if (files != null){
@@ -89,13 +111,13 @@ public class RequestFileHandler implements RequestHandler {
                     }else {
                         info=info+"type="+"3"+"name="+f.getName()+"size="+FileUtil.getSize(f);
                     }
-
                 }
                 Log.i("info",info);
                 response.setEntity(new StringEntity(info, "utf-8"));
             }else {
                 if (mFilePath.equals("/storage/emulated")){
-                    response.setEntity(new StringEntity("type=0name=0size=0B", "utf-8"));
+                    String respos = mFilePath+"type=1name=0size=0B";
+                    response.setEntity(new StringEntity(respos, "utf-8"));
                 }else {
                     response.setEntity(new StringEntity("null", "utf-8"));
                 }
@@ -108,9 +130,21 @@ public class RequestFileHandler implements RequestHandler {
             long contentLength = mFile.length();
             response.setHeader("ContentLength", Long.toString(contentLength));
             response.setEntity(new FileEntity(mFile, HttpRequestParser.getMimeType(mFile.getName())));
+            mFile = mFile.getParentFile();
+            mFilePath = mFile.getPath();
         }
         Log.i("info",info);
-        MyData.serverPath=mFilePath;
+    }
+    private void dirDelete(File dir){
+        File[] files = dir.listFiles();
+        for (File file:files){
+            if (file.isDirectory()){
+                dirDelete(file);
+            }else {
+                file.delete();
+            }
+        }
+        dir.delete();
     }
     public String unicodetoString(String s){
         String ss[] =  s.split("\\\\u");

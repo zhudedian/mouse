@@ -36,6 +36,7 @@ import com.ider.mouse.db.MyData;
 import com.ider.mouse.util.PackageUtils;
 import com.ider.mouse.util.QRCodeUtil;
 import com.ider.mouse.util.RequestFileHandler;
+import com.ider.mouse.util.RequestInstallHandler;
 import com.ider.mouse.util.RequestUploadHandler;
 import com.ider.mouse.util.SocketServer;
 import com.yanzhenjie.andserver.AndServer;
@@ -123,6 +124,7 @@ public class MouseService extends AccessibilityService {
         MyData.andServer = new AndServer.Build()
                 .port(8080) // 默认是8080，Android平台允许的端口号都可以。
                 .registerHandler("upload", new RequestUploadHandler(handler))
+                .registerHandler("install",new RequestInstallHandler(handler))
                 .registerHandler("down", new RequestFileHandler())
                 .timeout(10 * 1000) // 默认10 * 1000毫秒。
                 .website(wesite)
