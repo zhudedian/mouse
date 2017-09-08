@@ -1,28 +1,23 @@
 package com.ider.mouse.util;
 
-import android.net.Uri;
-import android.os.Environment;
 import android.util.Log;
 
 import com.ider.mouse.db.MyData;
 import com.yanzhenjie.andserver.RequestHandler;
-import com.yanzhenjie.andserver.upload.HttpUploadContext;
 import com.yanzhenjie.andserver.util.HttpRequestParser;
 
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-
-import static android.R.attr.imeFullscreenBackground;
-import static android.R.attr.key;
+import java.io.InputStream;
 
 /**
  * Created by Eric on 2017/8/24.
@@ -67,11 +62,7 @@ public class RequestFileHandler implements RequestHandler {
             parentPath = files[0];
             for (int i=1;i<files.length;i++){
                 if (!files[i].equals("")) {
-                    if (parentPath.equals("/")) {
-                        mFilePath = parentPath + files[i];
-                    } else {
-                        mFilePath = parentPath + "/" + files[i];
-                    }
+                    mFilePath = parentPath.endsWith("/")?(parentPath+files[i]):(parentPath+"/"+files[i]);
                     mFile = new File(mFilePath);;
                     if (mFile.isDirectory()&&mFile.exists()){
                         dirDelete(mFile);
@@ -80,10 +71,68 @@ public class RequestFileHandler implements RequestHandler {
                             mFile.delete();
                         }
                     }
-
                 }
             }
             mFilePath = parentPath;
+        }else if (comments.contains("\"createDir=\"")){
+            comments= comments.replace("\"createDir=\"","");
+            mFile = new File(comments);
+            if (!mFile.exists()){
+                mFile.mkdirs();
+            }
+            mFilePath = mFile.getParent();
+            Log.i("mFilePath",mFilePath);
+        }else if (comments.contains("\"moveFile=\"")){
+            comments= comments.replace("\"moveFile=\"","");
+            String[] files = comments.split("\"newPath=\"");
+            String savePath;
+            if (files[1].lastIndexOf(File.separator)==0){
+                savePath=File.separator;
+            }else {
+                savePath = files[1].substring(0,files[1].lastIndexOf(File.separator));
+            }
+            boolean result = FileCopy.move(files[0],savePath);
+            Log.i("result",result+"");
+            if (result){
+                response.setStatusCode(200);
+                response.setEntity(new StringEntity("success", "utf-8"));
+            }else {
+                boolean result2 = FileCopy.cut(files[0],files[1]);
+                if (result2){
+                    response.setStatusCode(200);
+                    response.setEntity(new StringEntity("success", "utf-8"));
+                }else {
+                    response.setStatusCode(500);
+                    response.setEntity(new StringEntity("failed", "utf-8"));
+                }
+            }
+            return;
+        } else if (comments.contains("\"reNameFile=\"")){
+            comments= comments.replace("\"reNameFile=\"","");
+            String[] files = comments.split("\"newName=\"");
+            File old = new File(files[0]);
+            mFilePath = old.getParent();
+            File newFile = new File(mFilePath+File.separator+files[1]);
+            boolean result = old.renameTo(newFile);
+            Log.i("result",result+"");
+        } else if (comments.contains("\"copyFile=\"")){
+            comments= comments.replace("\"copyFile=\"","");
+            String[] files = comments.split("\"newPath=\"");
+            boolean result = FileCopy.copy(files[0],files[1]);
+            Log.i("result",result+"");
+            if (result){
+                response.setStatusCode(200);
+                response.setEntity(new StringEntity("success", "utf-8"));
+            }else {
+                response.setStatusCode(500);
+                response.setEntity(new StringEntity("failed", "utf-8"));
+            }
+            return;
+        } else if (comments.equals("\"stopCopyFile\"")){
+            FileCopy.startCopy = false;
+            response.setStatusCode(200);
+            response.setEntity(new StringEntity("success", "utf-8"));
+            return;
         }else if (comments.equals("\"commonBack\"")){
             comments= comments.replace("\"commonBack\"","");
             mFile = new File(comments);
@@ -105,18 +154,30 @@ public class RequestFileHandler implements RequestHandler {
             if (files != null){
                 for(File f:files){
                     if (f.isDirectory()){
-                        info=info+"type="+"1"+"name="+f.getName()+"size="+FileUtil.getSize(f);
+                        info=info+"\"type=\""+"1"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_video_type)){
-                        info=info+"type="+"2"+"name="+f.getName()+"size="+FileUtil.getSize(f);
+                        info=info+"\"type=\""+"2"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f);
+                    }else if (FileUtil.getFileType(f).equals(FileUtil.str_audio_type)){
+                        info=info+"\"type=\""+"3"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f);
+                    }else if (FileUtil.getFileType(f).equals(FileUtil.str_image_type)){
+                        info=info+"\"type=\""+"4"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f);
+                    }else if (FileUtil.getFileType(f).equals(FileUtil.str_apk_type)){
+                        info=info+"\"type=\""+"5"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f);
+                    }else if (FileUtil.getFileType(f).equals(FileUtil.str_zip_type)){
+                        info=info+"\"type=\""+"6"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f);
+                    }else if (FileUtil.getFileType(f).equals(FileUtil.str_pdf_type)){
+                        info=info+"\"type=\""+"7"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f);
+                    }else if (FileUtil.getFileType(f).equals(FileUtil.str_txt_type)){
+                        info=info+"\"type=\""+"8"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f);
                     }else {
-                        info=info+"type="+"3"+"name="+f.getName()+"size="+FileUtil.getSize(f);
+                        info=info+"\"type=\""+"9"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f);
                     }
                 }
                 Log.i("info",info);
                 response.setEntity(new StringEntity(info, "utf-8"));
             }else {
                 if (mFilePath.equals("/storage/emulated")){
-                    String respos = mFilePath+"type=1name=0size=0B";
+                    String respos = mFilePath+"\"type=\"1\"name=\"0\"size=\"0B";
                     response.setEntity(new StringEntity(respos, "utf-8"));
                 }else {
                     response.setEntity(new StringEntity("null", "utf-8"));
@@ -165,4 +226,5 @@ public class RequestFileHandler implements RequestHandler {
         Log.i("string",sb.toString());
         return sb.toString();
     }
+
 }
