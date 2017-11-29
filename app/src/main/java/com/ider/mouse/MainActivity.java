@@ -82,8 +82,10 @@ public class MainActivity extends AppCompatActivity {
 
         ip = "http://"+getHostIP()+":8080/youtube1111";
 
+//        final String filePath = getFileRoot(MainActivity.this) + File.separator
+//                + "qr_" + System.currentTimeMillis() + ".jpg";
         final String filePath = getFileRoot(MainActivity.this) + File.separator
-                + "qr_" + System.currentTimeMillis() + ".jpg";
+                + "qr_downloadPathPic.jpg";
 
         //二维码图片较大时，生成图片、保存文件的时间可能较长，因此放在新线程中
         new Thread(new Runnable() {

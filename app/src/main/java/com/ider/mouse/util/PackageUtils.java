@@ -1,6 +1,7 @@
 package com.ider.mouse.util;
 
-import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageInstaller;
 import android.os.Build;
 import android.util.Log;
 
@@ -33,7 +34,7 @@ public static int installSlient(String filePath) {
 	String[] args ;
 
 	if (Build.VERSION.SDK_INT>=24){
-		args = new String[]{ "pm", "install", "-i","com.example.bootinit", filePath };
+		args = new String[]{ "pm", "install", "-i","com.ider.mouse", filePath };
 	}else {
 		args = new String[]{ "pm", "install", "-r", filePath };
 	}
@@ -89,6 +90,9 @@ public static int installSlient(String filePath) {
 	Log.d("install", "successMsg:" + successMsg + ", ErrorMsg:" + errorMsg);
 	return result;
 }
+
+
+
 
 
 }

@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.inputmethodservice.InputMethodService;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -27,6 +29,7 @@ import com.ider.mouse.net.Connect;
 import com.ider.mouse.util.HandCom;
 import com.ider.mouse.util.InfoHandler;
 import com.ider.mouse.util.PackageUtils;
+import com.ider.mouse.util.RequestAppIconHandler;
 import com.ider.mouse.util.RequestFileHandler;
 import com.ider.mouse.util.RequestInstallHandler;
 import com.ider.mouse.util.RequestUploadHandler;
@@ -91,8 +94,9 @@ public class MouseService extends Service {
 
 
         try {
-
-            MyData.server=new SocketServer ( 7777 );
+            if(MyData.server==null) {
+                MyData.server = new SocketServer(7777);
+            }
             /**socket服务端开始监听*/
             MyData.server.beginListen ( );
 
@@ -101,7 +105,7 @@ public class MouseService extends Service {
 
             e.printStackTrace ();
         }
-        Connect.onBrodacastReceiver();
+        startConnect();
         File file = new File("/system/", "preinstall");
         String websiteDirectory = file.getAbsolutePath();
         WebSite wesite = new StorageWebsite(websiteDirectory);
@@ -110,6 +114,7 @@ public class MouseService extends Service {
                 .registerHandler("upload", new RequestUploadHandler(handler))
                 .registerHandler("install",new RequestInstallHandler(handler))
                 .registerHandler("down", new RequestFileHandler())
+                .registerHandler("appicon",new RequestAppIconHandler())
                 .registerHandler("info",new InfoHandler())
                 .timeout(10 * 1000) // 默认10 * 1000毫秒。
                 .website(wesite)
@@ -156,8 +161,11 @@ public class MouseService extends Service {
                         }catch (Exception e){
                             e.printStackTrace ();
                         }
+                        endCount = 0;
                     }
-                    endCount = 0;
+                    if (endCount ==30){
+                        isEnd = false;
+                    }
                 }else {
                     endCount++;
                     Log.i("count",endCount+"");
@@ -170,11 +178,16 @@ public class MouseService extends Service {
         intentFilter.addAction("InputMethodOpen");
         intentFilter.addAction("InputMethodClose");
         intentFilter.addAction("TextInfo");
+        intentFilter.addAction("uninstall_complete_info");
+        intentFilter.addAction("Uninstall_Dialog_onDismiss");
         intentFilter.addAction("WebTextInfo");
+        intentFilter.addAction("networkChange");
+        intentFilter.addAction("screenshot_image_name");
         registerReceiver(myReceiver,intentFilter);
-
-        MyData.mouseView = new MouseView();
-        MyData.mouseView.createView();
+        if (MyData.mouseView==null) {
+            MyData.mouseView = new MouseView();
+            MyData.mouseView.createView();
+        }
 
     }
 
@@ -191,6 +204,20 @@ public class MouseService extends Service {
                 MyData.editText = intent.getStringExtra("info");
 //                Log.i("WebTextInfo", info);
                 MyData.server.sendMessage("InFo ");
+            }else if (intent.getAction().equals("uninstall_complete_info")){
+                String info = intent.getStringExtra("info");
+                Log.i("uninstall_complete_info", info);
+                MyData.server.sendMessage("InUnCp ");
+            }else if (intent.getAction().equals("Uninstall_Dialog_onDismiss")){
+                String info = intent.getStringExtra("info");
+                Log.i("myReceiver", "Uninstall_Dialog_onDismiss");
+                MyData.server.sendMessage("InDiaDis ");
+            }else if (intent.getAction().equals("networkChange")){
+//                stopSelf();
+                MyData.server.beginListen ( );
+                startConnect();
+            }else if (intent.getAction().equals("screenshot_image_name")){
+                Log.i("myReceiver", "screenshot_image_name");
             }
         }
     };
@@ -233,5 +260,36 @@ public class MouseService extends Service {
             }
         }
     };
+    private void startConnect(){
+        new Thread(){
+            @Override
+            public void run(){
+                boolean isConnect = false;
+                while (!isConnect) {
+                    try {
+                        sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (isWifiConnected()||isEthernetConnected()){
+                        Connect.onBrodacastReceiver();
+                        isConnect = true;
+                    }
+                }
+            }
+        }.start();
+    }
+
+    public boolean isEthernetConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Service.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getNetworkInfo(ConnectivityManager.TYPE_ETHERNET);
+        return info.isConnected() && info.isAvailable();
+    }
+    public boolean isWifiConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Service.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        return info.isConnected() && info.isAvailable();
+
+    }
 
 }

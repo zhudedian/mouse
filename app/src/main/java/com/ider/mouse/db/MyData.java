@@ -17,4 +17,5 @@ public class MyData {
     public static AndServer andServer;
     public static String serverPath= Environment.getExternalStorageDirectory().getPath();
     public static String editText;
+    public static String appIconPath = "/sdcard/Pictures/icons";
 }

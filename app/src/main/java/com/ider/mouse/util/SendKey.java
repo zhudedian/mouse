@@ -8,7 +8,7 @@ import android.view.KeyEvent;
  */
 
 public class SendKey {
-    private static Instrumentation instrumentation = new Instrumentation();
+    public static Instrumentation instrumentation = new Instrumentation();
 
     public static void sendBack(){
         new Thread(){
@@ -81,6 +81,17 @@ public class SendKey {
             public void run() {
                 try{
                     instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_RIGHT);
+                }
+                catch (Exception e) {
+                }
+            }
+        }.start();
+    }
+    public static void sendSYSRQ(){
+        new Thread(){
+            public void run() {
+                try{
+                    instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_SYSRQ);
                 }
                 catch (Exception e) {
                 }

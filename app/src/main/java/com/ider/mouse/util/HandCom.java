@@ -2,15 +2,6 @@ package com.ider.mouse.util;
 
 import com.ider.mouse.db.MyData;
 
-import static com.ider.mouse.db.MyData.server;
-import static com.ider.mouse.util.SendKey.sendBack;
-import static com.ider.mouse.util.SendKey.sendCenter;
-import static com.ider.mouse.util.SendKey.sendDown;
-import static com.ider.mouse.util.SendKey.sendLeft;
-import static com.ider.mouse.util.SendKey.sendMenu;
-import static com.ider.mouse.util.SendKey.sendRight;
-import static com.ider.mouse.util.SendKey.sendUp;
-
 /**
  * Created by Eric on 2017/9/7.
  */
@@ -64,7 +55,6 @@ public class HandCom {
             }catch (Exception e){
                 e.printStackTrace();
             }
-
             return;
         }
         if (com.contains("cc")){
@@ -77,7 +67,6 @@ public class HandCom {
             return;
         }
         if (com.contains("cb")){
-            MyData.server.sendMessage("back");
             SendKey.sendBack();
             return;
         }

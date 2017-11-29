@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Mouse</string>
+
+    <string name="CleanMaster">CleanUp</string>
+    <string name="CleanedMemory">Cleaned up:%1$s MB \tAvailable:%2$s M</string>
+    <string name="app_data_cleaned">已清除</string>
 </resources>

@@ -130,9 +130,9 @@ public class FileCopy {
                     temp = new File(oldPath + File.separator + file[i]);
                 }
                 if (temp.isFile()) {
-                    copyFile(temp.getPath(),newPath + File.separator + temp.getName());
+                    cutFile(temp.getPath(),newPath + File.separator + temp.getName());
                 } else if (temp.isDirectory()) {//如果是子文件夹
-                    copyFolder(oldPath + File.separator + file[i], newPath + File.separator + file[i]);
+                    cutFolder(oldPath + File.separator + file[i], newPath + File.separator + file[i]);
                 }
             }
             oldFile.delete();

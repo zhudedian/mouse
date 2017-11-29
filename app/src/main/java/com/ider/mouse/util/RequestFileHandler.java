@@ -1,8 +1,18 @@
 package com.ider.mouse.util;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.RemoteException;
 import android.util.Log;
 
+import com.ider.mouse.MainActivity;
+import com.ider.mouse.MyApplication;
+import com.ider.mouse.clean.CleanActivity;
+import com.ider.mouse.db.App;
 import com.ider.mouse.db.MyData;
+
 import com.yanzhenjie.andserver.RequestHandler;
 import com.yanzhenjie.andserver.util.HttpRequestParser;
 
@@ -14,10 +24,11 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HttpContext;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.util.List;
+
+import static com.ider.mouse.util.Screenshot.takeScreenShot;
 
 /**
  * Created by Eric on 2017/8/24.
@@ -74,6 +85,13 @@ public class RequestFileHandler implements RequestHandler {
                 }
             }
             mFilePath = parentPath;
+        }else if (comments.contains("\"uninstall=\"")){
+            comments= comments.replace("\"uninstall=\"","");
+            Intent intent = new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + comments));
+//            intent.putExtra("no_confirm",true);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            MyApplication.getContext().startActivity(intent);
+            return;
         }else if (comments.contains("\"createDir=\"")){
             comments= comments.replace("\"createDir=\"","");
             mFile = new File(comments);
@@ -137,6 +155,55 @@ public class RequestFileHandler implements RequestHandler {
             comments= comments.replace("\"commonBack\"","");
             mFile = new File(comments);
             mFilePath = mFile.getParent();
+        }else if (comments.contains("\"RequestAllApps\"")){
+            response.setStatusCode(403);
+            List<App> apps = ApplicationUtil.queryApplication();
+            info = MyData.appIconPath;
+            for (App app : apps){
+                info=info+"\"type=\""+app.getType()+"\"label=\""+app.getLabelName()+"\"pckn=\""+app.getPackageName();
+            }
+            response.setEntity(new StringEntity(info, "utf-8"));
+            return;
+        }else if (comments.contains("\"requestAppInfo=\"")){
+            comments= comments.replace("\"requestAppInfo=\"","");
+            info = ApplicationUtil.getRequestedPermission(comments);
+            response.setStatusCode(403);
+            response.setEntity(new StringEntity(info, "utf-8"));
+            return;
+        }else if (comments.equals("screenshot")){
+            String result = Screenshot.screenshotForKey();
+            response.setStatusCode(200);
+            response.setEntity(new StringEntity(result, "utf-8"));
+            return;
+        }else if (comments.contains("\"uninstall\"")){
+            comments= comments.replace("\"uninstall\"","");
+            Intent intent = new Intent("uninstall_comment");
+            intent.putExtra("info",comments);
+            MyApplication.getContext().sendBroadcast(intent);
+            return;
+        }else if (comments.contains("\"cleanData=\"")){
+            comments= comments.replace("\"cleanData=\"","");
+            ProcessManager.clearDataForPackage(MyApplication.getContext(), comments);
+            response.setStatusCode(200);
+            response.setEntity(new StringEntity("success!", "utf-8"));
+            return;
+        }else if (comments.contains("\"forceStop=\"")){
+            comments= comments.replace("\"forceStop=\"","");
+            ProcessManager.forceStop(MyApplication.getContext(), comments);
+            response.setStatusCode(200);
+            response.setEntity(new StringEntity("success!", "utf-8"));
+            return;
+        }else if (comments.equals("\"cleanProgress\"")){
+            Intent clean = new Intent(MyApplication.getContext(), CleanActivity.class);
+            MyApplication.getContext().startActivity(clean);
+            response.setStatusCode(200);
+            response.setEntity(new StringEntity("success!", "utf-8"));
+            return;
+        }else if (comments.equals("\"deviceInfo\"")){
+            info = DeviceInfo.getAllInfo(MyApplication.getContext());
+            response.setStatusCode(200);
+            response.setEntity(new StringEntity(info, "utf-8"));
+            return;
         }else {
             if (comments.equals("")){
                 mFilePath = MyData.serverPath;
@@ -144,6 +211,7 @@ public class RequestFileHandler implements RequestHandler {
                 mFilePath = comments;
             }
         }
+
         Log.i("mFilePath",mFilePath);
         mFile = new File(mFilePath);
         info = mFilePath;
@@ -226,5 +294,16 @@ public class RequestFileHandler implements RequestHandler {
         Log.i("string",sb.toString());
         return sb.toString();
     }
+
+
+
+
+
+
+
+
+
+
+
 
 }
