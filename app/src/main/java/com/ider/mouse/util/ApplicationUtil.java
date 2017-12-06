@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import static android.R.attr.versionCode;
+import static android.R.attr.versionName;
 import static android.content.ContentValues.TAG;
 
 
@@ -53,19 +55,26 @@ public class ApplicationUtil {
                 packageInfo = null;
             }
             String type = "1";
+            int versionCode;
+            String versionName;
             if (packageInfo!=null) {
                 if ((packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) <= 0) {
                     type = "1";
                 } else {
                     type = "0";
                 }
+                versionCode = packageInfo.versionCode;
+                versionName = packageInfo.versionName;
+                Log.i(TAG,  "versionCode="+versionCode+"versionName="+versionName);
             }else {
-                Log.i(TAG, "packageInfo==null");
+                versionCode = 0;
+                versionName = "0";
+                Log.i(TAG, "versionCode==null");
             }
             Log.i(TAG, "labelName ="+labelName+"type ="+type);
             String picName = packageName + ".jpg";
             saveBitmap(drawableToBitmap(drawable),picName);
-            enties.add(new App(packageName,labelName,type));
+            enties.add(new App(packageName,labelName,type,versionCode,versionName));
         }
         HashSet h = new HashSet(enties);//删除重复元素
         enties.clear();

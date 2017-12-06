@@ -160,7 +160,8 @@ public class RequestFileHandler implements RequestHandler {
             List<App> apps = ApplicationUtil.queryApplication();
             info = MyData.appIconPath;
             for (App app : apps){
-                info=info+"\"type=\""+app.getType()+"\"label=\""+app.getLabelName()+"\"pckn=\""+app.getPackageName();
+                info=info+"\"type=\""+app.getType()+"\"label=\""+app.getLabelName()+"\"pckn=\""+
+                        app.getPackageName()+"\"verC=\""+app.getVersionCode()+"\"verN=\""+app.getVersionName();
             }
             response.setEntity(new StringEntity(info, "utf-8"));
             return;

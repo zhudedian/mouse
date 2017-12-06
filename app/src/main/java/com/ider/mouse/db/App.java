@@ -13,14 +13,19 @@ public class App {
 
     private String type;
 
+    private int versionCode;
+    private String versionName;
+
     public App(String packageName, String labelName){
         this.packageName = packageName;
         this.labelName = labelName;
     }
-    public App(String packageName, String labelName, String type){
+    public App(String packageName, String labelName, String type,int versionCode,String versionName){
         this.packageName = packageName;
         this.labelName = labelName;
         this.type = type;
+        this.versionCode = versionCode;
+        this.versionName = versionName;
     }
 
     public void setPackageName(String name){
@@ -44,6 +49,19 @@ public class App {
 
     public String getType(){
         return type;
+    }
+
+    public void setVersionCode(int versionCode){
+        this.versionCode = versionCode;
+    }
+    public int getVersionCode(){
+        return versionCode;
+    }
+    public void setVersionName(String versionName){
+        this.versionName = versionName;
+    }
+    public String getVersionName(){
+        return versionName;
     }
 
     @Override
