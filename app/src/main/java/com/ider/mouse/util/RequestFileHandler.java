@@ -223,23 +223,23 @@ public class RequestFileHandler implements RequestHandler {
             if (files != null){
                 for(File f:files){
                     if (f.isDirectory()){
-                        info=info+"\"type=\""+"1"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f);
+                        info=info+"\"type=\""+"1"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getFileCount(f)+"\"time=\""+FileUtil.getTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_video_type)){
-                        info=info+"\"type=\""+"2"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f);
+                        info=info+"\"type=\""+"2"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f)+"\"time=\""+FileUtil.getTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_audio_type)){
-                        info=info+"\"type=\""+"3"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f);
+                        info=info+"\"type=\""+"3"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f)+"\"time=\""+FileUtil.getTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_image_type)){
-                        info=info+"\"type=\""+"4"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f);
+                        info=info+"\"type=\""+"4"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f)+"\"time=\""+FileUtil.getTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_apk_type)){
-                        info=info+"\"type=\""+"5"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f);
+                        info=info+"\"type=\""+"5"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f)+"\"time=\""+FileUtil.getTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_zip_type)){
-                        info=info+"\"type=\""+"6"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f);
+                        info=info+"\"type=\""+"6"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f)+"\"time=\""+FileUtil.getTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_pdf_type)){
-                        info=info+"\"type=\""+"7"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f);
+                        info=info+"\"type=\""+"7"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f)+"\"time=\""+FileUtil.getTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_txt_type)){
-                        info=info+"\"type=\""+"8"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f);
+                        info=info+"\"type=\""+"8"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f)+"\"time=\""+FileUtil.getTime(f);
                     }else {
-                        info=info+"\"type=\""+"9"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f);
+                        info=info+"\"type=\""+"9"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f)+"\"time=\""+FileUtil.getTime(f);
                     }
                 }
                 Log.i("info",info);

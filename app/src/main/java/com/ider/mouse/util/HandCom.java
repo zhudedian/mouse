@@ -94,5 +94,25 @@ public class HandCom {
             SendKey.sendMenu();
             return;
         }
+        if (com.contains("covolup")){
+            SendKey.sendVolumeUp();
+            return;
+        }
+        if (com.contains("covoldown")){
+            SendKey.sendVolumeDown();
+            return;
+        }
+        if (com.contains("covolmute")){
+            SendKey.sendVolumeMute();
+            return;
+        }
+        if (com.contains("copower")){
+            SendKey.sendPower();
+            return;
+        }
+        if (com.contains("cosetting")){
+            SendKey.sendSettings();
+            return;
+        }
     }
 }

@@ -13,6 +13,7 @@ public class App {
 
     private String type;
 
+    private String createTime;
     private int versionCode;
     private String versionName;
 
@@ -62,6 +63,12 @@ public class App {
     }
     public String getVersionName(){
         return versionName;
+    }
+    public void setCreateTime(String createTime){
+        this.createTime = createTime;
+    }
+    public String getCreateTime(){
+        return createTime;
     }
 
     @Override
