@@ -246,7 +246,7 @@ public class RequestFileHandler implements RequestHandler {
                 response.setEntity(new StringEntity(info, "utf-8"));
             }else {
                 if (mFilePath.equals("/storage/emulated")){
-                    String respos = mFilePath+"\"type=\"1\"name=\"0\"size=\"0B";
+                    String respos = mFilePath+"\"type=\"1\"name=\"0\"size=\"0B\"time=\"20171211";
                     response.setEntity(new StringEntity(respos, "utf-8"));
                 }else {
                     response.setEntity(new StringEntity("null", "utf-8"));
