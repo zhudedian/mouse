@@ -41,9 +41,11 @@ public class RequestUploadHandler implements RequestHandler {
         // HttpFileUpload.isMultipartContent(request) // DELETE、PUT、POST method。
         Log.i("filepath","handle(HttpRequest request");
         if (!HttpFileUpload.isMultipartContentWithPost(request)) { // Is POST and upload.
+            Log.i("filepath","You must upload file.");
             response(403, "You must upload file.", response);
         } else {
             String savePath = request.getFirstHeader("savePath").getValue();
+            Log.i("savePath",savePath);
             // File save directory.
             final File saveDirectory = new File(savePath);
             if (!saveDirectory.exists()){
