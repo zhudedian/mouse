@@ -11,7 +11,9 @@ import java.io.InputStream;
 
 public class FileCopy {
     public static boolean startCopy;
+    public static long copyByte;
     public static boolean copy(String oldPath,String newPath){
+        copyByte = 0;
         startCopy = true;
         File file = new File(oldPath);
         if (file.isDirectory()){
@@ -33,7 +35,7 @@ public class FileCopy {
                 int length;
                 while ((byteread = inStream.read(buffer)) != -1) {
                     if (startCopy) {
-                        bytesum += byteread; //字节数 文件大小
+                        copyByte += byteread; //字节数 文件大小
                         fs.write(buffer, 0, byteread);
                     }else {
                         newFile.delete();

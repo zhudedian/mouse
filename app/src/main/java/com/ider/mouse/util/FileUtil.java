@@ -113,57 +113,66 @@ public class FileUtil {
         }
         return "0";
     }
+    public static long getFileLCount(File file){
+        if (file.isDirectory()){
+            File[] files = file.listFiles();
+            if (files!=null){
+                return files.length;
+            }else {
+                return 0;
+            }
+        }
+        return 0;
+    }
     public static String getSize(File file){
         if (file.isDirectory()){
-            double size = file.getTotalSpace();
-            if (size<1024){
-                return size+"Byte";
-            }else if (size<1024*1024){
-                int si = (int) (size/1024*100);
-                double s = si;
-                return s/100+"K";
-            }else if (size<1024*1024*1024){
-                int si = (int) (size/1024/1024*100);
-                double s = si;
-                return s/100+"M";
-            }else if (size/1024<1024*1024*1024){
-                int si = (int) (size/1024/1024/1024*100);
-                double s = si;
-                return s/100+"G";
-            }else {
-                int si = (int) (size/1024/1024/1024/1024*100);
-                double s = si;
-                return s/100+"T";
-            }
+            long size = file.getTotalSpace();
+            return getSize(size);
         }else {
             try {
                 FileInputStream fileInputStream = new FileInputStream(file);
-                double size = fileInputStream.available();
-                if (size<1024){
-                    return size+"Byte";
-                }else if (size<1024*1024){
-                    int si = (int) (size/1024*100);
-                    double s = si;
-                    return s/100+"K";
-                }else if (size<1024*1024*1024){
-                    int si = (int) (size/1024/1024*100);
-                    double s = si;
-                    return s/100+"M";
-                }else if (size/1024<1024*1024*1024){
-                    int si = (int) (size/1024/1024/1024*100);
-                    double s = si;
-                    return s/100+"G";
-                }else {
-                    int si = (int) (size/1024/1024/1024/1024*100);
-                    double s = si;
-                    return s/100+"T";
-                }
+                long size = fileInputStream.available();
+                return getSize(size);
             } catch (Exception e) {
-				e.printStackTrace();
+                e.printStackTrace();
                 return "0B";
             }
         }
+    }
+    public static long getLSize(File file){
+        if (file.isDirectory()){
+            long size = file.getTotalSpace();
+            return size;
+        }else {
+            try {
+                FileInputStream fileInputStream = new FileInputStream(file);
+                long size = fileInputStream.available();
+                return size;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return 0;
+            }
+        }
+    }
+    public static String getSize(long size){
+        return getSize((float)size);
+    }
+    public static String getSize(float size){
+        if (size<1024){
+            return size+"B";
+        }else if (size<1024*1024){
+            float s = size/1024;
+            return String.format("%.2f",s)+"K";
+        }else if (size<1024*1024*1024){
+            float s = size/1024/1024;
+            return String.format("%.2f",s)+"M";
+        }else if (size/1024<1024*1024*1024){
 
-
+            float s = size/1024/1024/1024;
+            return String.format("%.2f",s)+"G";
+        }else {
+            float s = size/1024/1024/1024/1024;
+            return String.format("%.2f",s)+"T";
+        }
     }
 }

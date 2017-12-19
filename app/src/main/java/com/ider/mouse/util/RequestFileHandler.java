@@ -56,7 +56,12 @@ public class RequestFileHandler implements RequestHandler {
         Log.i("comments",comments);
         comments = unicodetoString(comments);
         Log.i("comments",comments);
-        if (comments.contains("\"downLoad=\"")){
+        if (comments.equals("\"copyByte\"")){
+            info = FileCopy.copyByte+"";
+            response.setStatusCode(200);
+            response.setEntity(new StringEntity(info, "utf-8"));
+            return;
+        }else if (comments.contains("\"downLoad=\"")){
             downLoadPath= comments.replace("\"downLoad=\"","");
             Log.i("downLoadPath",downLoadPath);
             downLoadFile = new File(downLoadPath);
@@ -223,30 +228,30 @@ public class RequestFileHandler implements RequestHandler {
             if (files != null){
                 for(File f:files){
                     if (f.isDirectory()){
-                        info=info+"\"type=\""+"1"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getFileCount(f)+"\"time=\""+FileUtil.getTime(f);
+                        info=info+"\"type=\""+"1"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getFileLCount(f)+"\"time=\""+FileUtil.getTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_video_type)){
-                        info=info+"\"type=\""+"2"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f)+"\"time=\""+FileUtil.getTime(f);
+                        info=info+"\"type=\""+"2"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_audio_type)){
-                        info=info+"\"type=\""+"3"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f)+"\"time=\""+FileUtil.getTime(f);
+                        info=info+"\"type=\""+"3"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_image_type)){
-                        info=info+"\"type=\""+"4"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f)+"\"time=\""+FileUtil.getTime(f);
+                        info=info+"\"type=\""+"4"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_apk_type)){
-                        info=info+"\"type=\""+"5"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f)+"\"time=\""+FileUtil.getTime(f);
+                        info=info+"\"type=\""+"5"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_zip_type)){
-                        info=info+"\"type=\""+"6"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f)+"\"time=\""+FileUtil.getTime(f);
+                        info=info+"\"type=\""+"6"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_pdf_type)){
-                        info=info+"\"type=\""+"7"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f)+"\"time=\""+FileUtil.getTime(f);
+                        info=info+"\"type=\""+"7"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_txt_type)){
-                        info=info+"\"type=\""+"8"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f)+"\"time=\""+FileUtil.getTime(f);
+                        info=info+"\"type=\""+"8"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getTime(f);
                     }else {
-                        info=info+"\"type=\""+"9"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getSize(f)+"\"time=\""+FileUtil.getTime(f);
+                        info=info+"\"type=\""+"9"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getTime(f);
                     }
                 }
                 Log.i("info",info);
                 response.setEntity(new StringEntity(info, "utf-8"));
             }else {
                 if (mFilePath.equals("/storage/emulated")){
-                    String respos = mFilePath+"\"type=\"1\"name=\"0\"size=\"0B\"time=\"20171211";
+                    String respos = mFilePath+"\"type=\"1\"name=\"0\"size=\"0\"time=\"20171211";
                     response.setEntity(new StringEntity(respos, "utf-8"));
                 }else {
                     response.setEntity(new StringEntity("null", "utf-8"));
