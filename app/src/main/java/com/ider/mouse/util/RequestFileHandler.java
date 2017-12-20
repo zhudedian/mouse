@@ -57,7 +57,7 @@ public class RequestFileHandler implements RequestHandler {
         comments = unicodetoString(comments);
         Log.i("comments",comments);
         if (comments.equals("\"copyByte\"")){
-            info = FileCopy.copyByte+"";
+            info = "\"copyByte=\""+FileCopy.copyByte;
             response.setStatusCode(200);
             response.setEntity(new StringEntity(info, "utf-8"));
             return;
@@ -141,18 +141,18 @@ public class RequestFileHandler implements RequestHandler {
         } else if (comments.contains("\"copyFile=\"")){
             comments= comments.replace("\"copyFile=\"","");
             String[] files = comments.split("\"newPath=\"");
-            boolean result = FileCopy.copy(files[0],files[1]);
-            Log.i("result",result+"");
-            if (result){
-                response.setStatusCode(200);
-                response.setEntity(new StringEntity("success", "utf-8"));
-            }else {
-                response.setStatusCode(500);
-                response.setEntity(new StringEntity("failed", "utf-8"));
-            }
+            FileCopy.copy(files[0],files[1]);
+            response.setStatusCode(200);
+            response.setEntity(new StringEntity("success", "utf-8"));
             return;
         } else if (comments.equals("\"stopCopyFile\"")){
             FileCopy.startCopy = false;
+            FileCopy.copyByte = 0;
+            response.setStatusCode(200);
+            response.setEntity(new StringEntity("success", "utf-8"));
+            return;
+        } else if (comments.equals("\"startCopyFile\"")){
+            FileCopy.copyByte = 0;
             response.setStatusCode(200);
             response.setEntity(new StringEntity("success", "utf-8"));
             return;

@@ -12,14 +12,19 @@ import java.io.InputStream;
 public class FileCopy {
     public static boolean startCopy;
     public static long copyByte;
-    public static boolean copy(String oldPath,String newPath){
-        copyByte = 0;
+    public static void copy(final String oldPath,final String newPath){
         startCopy = true;
         File file = new File(oldPath);
         if (file.isDirectory()){
-            return copyFolder(oldPath,newPath);
+            copyFolder(oldPath,newPath);
         }else {
-            return copyFile(oldPath,newPath);
+            new Thread(){
+                @Override
+                public void run(){
+                    copyFile(oldPath,newPath);
+                }
+            }.start();
+
         }
     }
     public static boolean copyFile(String oldPath, String newPath) {
