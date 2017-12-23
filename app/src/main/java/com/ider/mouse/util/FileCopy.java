@@ -33,6 +33,12 @@ public class FileCopy {
             int byteread = 0;
             File oldfile = new File(oldPath);
             File newFile = new File(newPath);
+            if (newFile.exists()){
+                newFile.delete();
+                newFile.createNewFile();
+            }else {
+                newFile.createNewFile();
+            }
             if (oldfile.exists()&&startCopy) { //文件存在时
                 InputStream inStream = new FileInputStream(oldPath); //读入原文件
                 FileOutputStream fs = new FileOutputStream(newPath);
@@ -83,13 +89,19 @@ public class FileCopy {
         }
     }
 
-    public static boolean cut(String oldPath,String newPath){
+    public static void cut(final String oldPath,final String newPath){
         startCopy = true;
         File file = new File(oldPath);
         if (file.isDirectory()){
-            return cutFolder(oldPath,newPath);
+            cutFolder(oldPath,newPath);
         }else {
-            return cutFile(oldPath,newPath);
+            new Thread(){
+                @Override
+                public void run(){
+                    cutFile(oldPath,newPath);
+                }
+            }.start();
+
         }
     }
     public static boolean cutFile(String oldPath, String newPath) {
@@ -98,6 +110,12 @@ public class FileCopy {
             int byteread = 0;
             File oldfile = new File(oldPath);
             File newFile = new File(newPath);
+            if (newFile.exists()){
+                newFile.delete();
+                newFile.createNewFile();
+            }else {
+                newFile.createNewFile();
+            }
             if (oldfile.exists()&&startCopy) { //文件存在时
                 InputStream inStream = new FileInputStream(oldPath); //读入原文件
                 FileOutputStream fs = new FileOutputStream(newPath);
@@ -149,25 +167,26 @@ public class FileCopy {
             return false;
         }
     }
-    public static boolean move(String oldPath,String savePath){
+    public static boolean move(String oldPath,String newPath){
         File file = new File(oldPath);
         if (file.isDirectory()){
-            return moveDirectory(oldPath,savePath);
+            return moveDirectory(oldPath,newPath);
         }else {
-            return moveFile(oldPath,savePath);
+            return moveFile(oldPath,newPath);
         }
     }
 
-    private static boolean moveFile(String oldPath, String savePath) {
+    private static boolean moveFile(String oldPath, String newPath) {
         File srcFile = new File(oldPath);
         if(!srcFile.exists()) {
             return false;
         }
-        File destDir = new File(savePath);
+        File newFile = new File(newPath);
+        File destDir = newFile.getParentFile();
         if (!destDir.exists()) {
             destDir.mkdirs();
         }
-        return srcFile.renameTo(new File(savePath + File.separator + srcFile.getName()));
+        return srcFile.renameTo(new File(newPath));
     }
     private static boolean moveDirectory(String oldPath, String savePath) {
         File srcDir = new File(oldPath);

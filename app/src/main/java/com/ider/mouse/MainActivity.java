@@ -23,14 +23,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ider.mouse.util.DiskUtil;
 import com.ider.mouse.util.QRCodeUtil;
-import com.ider.mouse.util.RequestFileHandler;
-import com.ider.mouse.util.RequestUploadHandler;
 import com.ider.mouse.util.SocketServer;
-import com.yanzhenjie.andserver.AndServer;
 import com.yanzhenjie.andserver.Server;
-import com.yanzhenjie.andserver.website.StorageWebsite;
-import com.yanzhenjie.andserver.website.WebSite;
 
 import java.io.File;
 import java.net.Inet6Address;
@@ -39,6 +35,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -172,6 +169,11 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    }
+    protected void onResume(){
+        super.onResume();
+//        List<DiskUtil.StorageInfo> list = DiskUtil.listAllStorage();
+//        DiskUtil.getAvaliableStorage(list);
     }
     private String getFileRoot(Context context) {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {

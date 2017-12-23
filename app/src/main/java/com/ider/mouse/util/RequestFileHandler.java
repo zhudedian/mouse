@@ -108,29 +108,24 @@ public class RequestFileHandler implements RequestHandler {
         }else if (comments.contains("\"moveFile=\"")){
             comments= comments.replace("\"moveFile=\"","");
             String[] files = comments.split("\"newPath=\"");
-            String savePath;
-            if (files[1].lastIndexOf(File.separator)==0){
-                savePath=File.separator;
-            }else {
-                savePath = files[1].substring(0,files[1].lastIndexOf(File.separator));
-            }
-            boolean result = FileCopy.move(files[0],savePath);
+            boolean result = FileCopy.move(files[0],files[1]);
             Log.i("result",result+"");
             if (result){
                 response.setStatusCode(200);
                 response.setEntity(new StringEntity("success", "utf-8"));
             }else {
-                boolean result2 = FileCopy.cut(files[0],files[1]);
-                if (result2){
-                    response.setStatusCode(200);
-                    response.setEntity(new StringEntity("success", "utf-8"));
-                }else {
-                    response.setStatusCode(500);
-                    response.setEntity(new StringEntity("failed", "utf-8"));
-                }
+                response.setStatusCode(200);
+                response.setEntity(new StringEntity("failed", "utf-8"));
             }
             return;
-        } else if (comments.contains("\"reNameFile=\"")){
+        } else if (comments.contains("\"cutFile=\"")){
+            comments= comments.replace("\"cutFile=\"","");
+            String[] files = comments.split("\"newPath=\"");
+            FileCopy.cut(files[0],files[1]);
+            response.setStatusCode(200);
+            response.setEntity(new StringEntity("success", "utf-8"));
+            return;
+        }else if (comments.contains("\"reNameFile=\"")){
             comments= comments.replace("\"reNameFile=\"","");
             String[] files = comments.split("\"newName=\"");
             File old = new File(files[0]);
@@ -221,6 +216,17 @@ public class RequestFileHandler implements RequestHandler {
         Log.i("mFilePath",mFilePath);
         mFile = new File(mFilePath);
         info = mFilePath;
+        if (mFilePath.equals("/storage")){
+            List<DiskUtil.StorageInfo> storageInfos = DiskUtil.getAvaliableStorage();
+            if (storageInfos.size()>0) {
+                for (DiskUtil.StorageInfo storageInfo : storageInfos) {
+                    info = info+"\"type=\""+"0"+"\"name=\""+storageInfo.label+"\"path=\""+storageInfo.path+"\"size=\""+storageInfo.size+"\"time=\""+storageInfo.avaSize;
+                }
+            }
+            Log.i("info",info);
+            response.setEntity(new StringEntity(info, "utf-8"));
+            return;
+        }
         if (mFile.isDirectory()){
             Log.i("info",info);
             response.setStatusCode(403);
@@ -228,23 +234,23 @@ public class RequestFileHandler implements RequestHandler {
             if (files != null){
                 for(File f:files){
                     if (f.isDirectory()){
-                        info=info+"\"type=\""+"1"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getFileLCount(f)+"\"time=\""+FileUtil.getTime(f);
+                        info=info+"\"type=\""+"1"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getAvaSize(f)+"\"count=\""+FileUtil.getFileLCount(f)+"\"time=\""+FileUtil.getLTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_video_type)){
-                        info=info+"\"type=\""+"2"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getTime(f);
+                        info=info+"\"type=\""+"2"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getLTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_audio_type)){
-                        info=info+"\"type=\""+"3"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getTime(f);
+                        info=info+"\"type=\""+"3"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getLTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_image_type)){
-                        info=info+"\"type=\""+"4"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getTime(f);
+                        info=info+"\"type=\""+"4"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getLTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_apk_type)){
-                        info=info+"\"type=\""+"5"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getTime(f);
+                        info=info+"\"type=\""+"5"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getLTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_zip_type)){
-                        info=info+"\"type=\""+"6"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getTime(f);
+                        info=info+"\"type=\""+"6"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getLTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_pdf_type)){
-                        info=info+"\"type=\""+"7"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getTime(f);
+                        info=info+"\"type=\""+"7"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getLTime(f);
                     }else if (FileUtil.getFileType(f).equals(FileUtil.str_txt_type)){
-                        info=info+"\"type=\""+"8"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getTime(f);
+                        info=info+"\"type=\""+"8"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getLTime(f);
                     }else {
-                        info=info+"\"type=\""+"9"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getTime(f);
+                        info=info+"\"type=\""+"9"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getLTime(f);
                     }
                 }
                 Log.i("info",info);

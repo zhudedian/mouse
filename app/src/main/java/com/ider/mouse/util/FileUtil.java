@@ -92,6 +92,14 @@ public class FileUtil {
 
         return type;
     }
+    public static long getLTime(File file){
+        if (file.exists()) {
+            long time = file.lastModified();
+
+            return time;
+        }
+        return 0;
+    }
     public static String getTime(File file){
         if (file.exists()) {
             long time = file.lastModified();
@@ -138,6 +146,13 @@ public class FileUtil {
                 return "0B";
             }
         }
+    }
+    public static long getAvaSize(File file){
+        if (file.isDirectory()){
+            long size = file.getFreeSpace();
+            return size;
+        }
+        return 0;
     }
     public static long getLSize(File file){
         if (file.isDirectory()){
