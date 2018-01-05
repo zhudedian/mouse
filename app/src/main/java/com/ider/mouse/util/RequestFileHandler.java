@@ -2,17 +2,14 @@ package com.ider.mouse.util;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.RemoteException;
+import android.os.PowerManager;
 import android.util.Log;
 
-import com.ider.mouse.MainActivity;
 import com.ider.mouse.MyApplication;
 import com.ider.mouse.clean.CleanActivity;
 import com.ider.mouse.db.App;
 import com.ider.mouse.db.MyData;
-
 import com.yanzhenjie.andserver.RequestHandler;
 import com.yanzhenjie.andserver.util.HttpRequestParser;
 
@@ -25,10 +22,7 @@ import org.apache.http.protocol.HttpContext;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.List;
-
-import static com.ider.mouse.util.Screenshot.takeScreenShot;
 
 /**
  * Created by Eric on 2017/8/24.
@@ -51,11 +45,11 @@ public class RequestFileHandler implements RequestHandler {
     @Override
     public void handle(HttpRequest request, HttpResponse response, HttpContext context) throws HttpException, IOException {
         // You can according to the client param can also be downloaded.
-        Log.i("MyData.serverPath",MyData.serverPath);
+//        Log.i("MyData.serverPath",MyData.serverPath);
         comments = request.getFirstHeader("comment").getValue();
-        Log.i("comments",comments);
+//        Log.i("comments",comments);
         comments = unicodetoString(comments);
-        Log.i("comments",comments);
+//        Log.i("comments",comments);
         if (comments.equals("\"copyByte\"")){
             info = "\"copyByte=\""+FileCopy.copyByte;
             response.setStatusCode(200);
@@ -63,7 +57,7 @@ public class RequestFileHandler implements RequestHandler {
             return;
         }else if (comments.contains("\"downLoad=\"")){
             downLoadPath= comments.replace("\"downLoad=\"","");
-            Log.i("downLoadPath",downLoadPath);
+//            Log.i("downLoadPath",downLoadPath);
             downLoadFile = new File(downLoadPath);
             if (downLoadFile.exists()) {
                 response.setStatusCode(200);
@@ -104,12 +98,12 @@ public class RequestFileHandler implements RequestHandler {
                 mFile.mkdirs();
             }
             mFilePath = mFile.getParent();
-            Log.i("mFilePath",mFilePath);
+//            Log.i("mFilePath",mFilePath);
         }else if (comments.contains("\"moveFile=\"")){
             comments= comments.replace("\"moveFile=\"","");
             String[] files = comments.split("\"newPath=\"");
             boolean result = FileCopy.move(files[0],files[1]);
-            Log.i("result",result+"");
+//            Log.i("result",result+"");
             if (result){
                 response.setStatusCode(200);
                 response.setEntity(new StringEntity("success", "utf-8"));
@@ -132,7 +126,7 @@ public class RequestFileHandler implements RequestHandler {
             mFilePath = old.getParent();
             File newFile = new File(mFilePath+File.separator+files[1]);
             boolean result = old.renameTo(newFile);
-            Log.i("result",result+"");
+//            Log.i("result",result+"");
         } else if (comments.contains("\"copyFile=\"")){
             comments= comments.replace("\"copyFile=\"","");
             String[] files = comments.split("\"newPath=\"");
@@ -205,6 +199,12 @@ public class RequestFileHandler implements RequestHandler {
             response.setStatusCode(200);
             response.setEntity(new StringEntity(info, "utf-8"));
             return;
+        }else if (comments.equals("\"reboot\"")){
+            PowerManager pManager=(PowerManager) MyApplication.getContext().getSystemService(Context.POWER_SERVICE);
+            pManager.reboot("重启");
+            response.setStatusCode(200);
+            response.setEntity(new StringEntity("success!", "utf-8"));
+            return;
         }else {
             if (comments.equals("")){
                 mFilePath = MyData.serverPath;
@@ -213,7 +213,7 @@ public class RequestFileHandler implements RequestHandler {
             }
         }
 
-        Log.i("mFilePath",mFilePath);
+//        Log.i("mFilePath",mFilePath);
         mFile = new File(mFilePath);
         info = mFilePath;
         if (mFilePath.equals("/storage")){
@@ -223,12 +223,12 @@ public class RequestFileHandler implements RequestHandler {
                     info = info+"\"type=\""+"0"+"\"name=\""+storageInfo.label+"\"path=\""+storageInfo.path+"\"size=\""+storageInfo.size+"\"time=\""+storageInfo.avaSize;
                 }
             }
-            Log.i("info",info);
+//            Log.i("info",info);
             response.setEntity(new StringEntity(info, "utf-8"));
             return;
         }
         if (mFile.isDirectory()){
-            Log.i("info",info);
+//            Log.i("info",info);
             response.setStatusCode(403);
             File[] files = mFile.listFiles();
             if (files != null){
@@ -253,7 +253,7 @@ public class RequestFileHandler implements RequestHandler {
                         info=info+"\"type=\""+"9"+"\"name=\""+f.getName()+"\"size=\""+FileUtil.getLSize(f)+"\"time=\""+FileUtil.getLTime(f);
                     }
                 }
-                Log.i("info",info);
+//                Log.i("info",info);
                 response.setEntity(new StringEntity(info, "utf-8"));
             }else {
                 if (mFilePath.equals("/storage/emulated")){
@@ -267,14 +267,14 @@ public class RequestFileHandler implements RequestHandler {
 
         }else if (mFile.exists()) {
             response.setStatusCode(200);
-            Log.i("info",info);
+//            Log.i("info",info);
             long contentLength = mFile.length();
             response.setHeader("ContentLength", Long.toString(contentLength));
             response.setEntity(new FileEntity(mFile, HttpRequestParser.getMimeType(mFile.getName())));
             mFile = mFile.getParentFile();
             mFilePath = mFile.getPath();
         }
-        Log.i("info",info);
+//        Log.i("info",info);
     }
     private void dirDelete(File dir){
         File[] files = dir.listFiles();
@@ -289,21 +289,21 @@ public class RequestFileHandler implements RequestHandler {
     }
     public String unicodetoString(String s){
         String ss[] =  s.split("\\\\u");
-        Log.i("string",ss.length+"");
+//        Log.i("string",ss.length+"");
         StringBuilder sb=new StringBuilder(ss[0]);
-        Log.i("string",sb.toString());
-        Log.i("string","ss[0]"+ss[0]);
+//        Log.i("string",sb.toString());
+//        Log.i("string","ss[0]"+ss[0]);
         for (int i = 1; i<ss.length; i++) {
 
-            Log.i("string","ss[i]"+ss[i]);
+//            Log.i("string","ss[i]"+ss[i]);
             String uCode = ss[i].substring(0,4);
             StringBuffer sCode = new StringBuffer(ss[i]);
             sCode.delete(0,4);
             sb.append((char)Integer.parseInt(uCode, 16));
             sb.append(sCode);
-            Log.i("string",sb.toString());
+//            Log.i("string",sb.toString());
         }
-        Log.i("string",sb.toString());
+//        Log.i("string",sb.toString());
         return sb.toString();
     }
 

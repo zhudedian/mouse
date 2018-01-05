@@ -14,6 +14,12 @@ public class MyReceiver extends BroadcastReceiver {
     }
     @Override
     public void onReceive(Context context, Intent intent) {
+        String action = intent.getAction();
+        if (action.equals("android.intent.action.BOOT_COMPLETED")){
+            Intent service = new Intent(context,MouseService.class);
+            context.startService(service);
+            return;
+        }
         Intent intent1 = new Intent("networkChange");
         mContext.sendBroadcast(intent1);
 //        new Thread() {

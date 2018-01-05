@@ -114,7 +114,7 @@ public class MouseService extends Service {
                 .registerHandler("upload", new RequestUploadHandler(handler))
                 .registerHandler("install",new RequestInstallHandler(handler))
                 .registerHandler("down", new RequestFileHandler())
-                .registerHandler("appicon",new RequestAppIconHandler())
+                .registerHandler("app",new RequestAppIconHandler())
                 .registerHandler("info",new InfoHandler())
                 .timeout(10 * 1000) // 默认10 * 1000毫秒。
                 .website(wesite)
@@ -124,7 +124,7 @@ public class MouseService extends Service {
         SocketServer.ServerHandler = new Handler( ){
             @Override
             public void handleMessage(Message msg) {
-                Log.i("taggg",msg.obj.toString());
+//                Log.i("taggg",msg.obj.toString());
                 String info = msg.obj.toString();
                 String[] pos = info.split(" ");
                 for (int i = 0; i < pos.length; i++) {
@@ -135,41 +135,41 @@ public class MouseService extends Service {
                     }
                 }
 
-                if (endCount >= 4){
-                    if (!isEnd){
-                        isEnd = true;
-                        MyData.server.endListen();
-                        try {
-                            new Thread(){
-                                @Override
-                                public void run(){
-                                    try {
-                                        sleep(1000);
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
-                                    isEnd = false;
-                                    if (MyData.server==null){
-                                        MyData.server=new SocketServer ( 7777 );
-                                    }
-                                    /**socket服务端开始监听*/
-                                    MyData.server.beginListen ( );
-                                    Log.i("begin","beginListen");
-                                }
-                            }.start();
-
-                        }catch (Exception e){
-                            e.printStackTrace ();
-                        }
-                        endCount = 0;
-                    }
-                    if (endCount ==30){
-                        isEnd = false;
-                    }
-                }else {
-                    endCount++;
-                    Log.i("count",endCount+"");
-                }
+//                if (endCount >= 4){
+//                    if (!isEnd){
+//                        isEnd = true;
+//                        MyData.server.endListen();
+//                        try {
+//                            new Thread(){
+//                                @Override
+//                                public void run(){
+//                                    try {
+//                                        sleep(1000);
+//                                    } catch (InterruptedException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                    isEnd = false;
+//                                    if (MyData.server==null){
+//                                        MyData.server=new SocketServer ( 7777 );
+//                                    }
+//                                    /**socket服务端开始监听*/
+//                                    MyData.server.beginListen ( );
+//                                    Log.i("begin","beginListen");
+//                                }
+//                            }.start();
+//
+//                        }catch (Exception e){
+//                            e.printStackTrace ();
+//                        }
+//                        endCount = 0;
+//                    }
+//                    if (endCount ==30){
+//                        isEnd = false;
+//                    }
+//                }else {
+//                    endCount++;
+//                    Log.i("count",endCount+"");
+//                }
 
             }
 
@@ -194,6 +194,7 @@ public class MouseService extends Service {
     BroadcastReceiver myReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.i("myReceiver", "intent.getAction()="+intent.getAction());
             if (intent.getAction().equals("InputMethodOpen")){
                 MyData.server.sendMessage("InOp ");
                 Intent intent1 = new Intent("getWebTextInfo");

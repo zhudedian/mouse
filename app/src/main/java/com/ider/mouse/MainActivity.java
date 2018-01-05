@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        ip = "http://"+getHostIP()+":8080/youtube1111";
+        ip = "http://"+getHostIP()+":8080/app";
 
 //        final String filePath = getFileRoot(MainActivity.this) + File.separator
 //                + "qr_" + System.currentTimeMillis() + ".jpg";

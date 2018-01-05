@@ -114,5 +114,9 @@ public class HandCom {
             SendKey.sendSettings();
             return;
         }
+        if (com.contains("cohome")){
+            SendKey.sendHome();
+            return;
+        }
     }
 }

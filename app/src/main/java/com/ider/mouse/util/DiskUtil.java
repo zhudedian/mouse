@@ -55,7 +55,7 @@ public class DiskUtil {
 //                    long size = (long) getMaxFileSize.invoke(obj, new Object[0]);
 //                    info.size = size;
                     storages.add(info);
-                    Log.i(TAG, info.toString());
+//                    Log.i(TAG, info.toString());
                 }
             }
         } catch (Exception e) {
@@ -75,7 +75,7 @@ public class DiskUtil {
                     info.size = file.getTotalSpace();
                     info.avaSize = file.getFreeSpace();
                     storages.add(info);
-                    Log.i(TAG, "getAvaliableStorage="+info.toString());
+//                    Log.i(TAG, "getAvaliableStorage="+info.toString());
                 }
             }
         }

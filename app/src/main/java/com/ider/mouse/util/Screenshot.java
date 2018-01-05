@@ -4,6 +4,7 @@ package com.ider.mouse.util;
 
 
 import android.content.SharedPreferences;
+import android.os.Build;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -31,13 +32,19 @@ public class Screenshot {
         }
     }
     public static String screenshotForKey(){
-        File file = new File("/sdcard/Pictures/Screenshots");
+        String picPath;
+        if (DeviceInfo.getCpuName().equals("Rockchip RK3229")&& Build.VERSION.SDK_INT==25){
+            picPath = "/sdcard/Screenshots";
+        }else {
+            picPath = "/sdcard/Pictures/Screenshots";
+        }
+        File file = new File(picPath);
         File[] files;
         if (file.exists()){
             delete(file);
         }
+        SendKey.sendSYSRQ();
         do{
-            SendKey.sendSYSRQ();
             try {
                 Thread.sleep(500);
             }catch (Exception e){
@@ -46,7 +53,7 @@ public class Screenshot {
             files = file.listFiles();
         }while (files==null||(files!=null&&files.length !=1));
         String name = files[0].getName();
-        return "/sdcard/Pictures/Screenshots"+"\"name=\""+name;
+        return picPath+"\"name=\""+name;
     }
 
     private static void delete(File file){

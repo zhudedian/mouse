@@ -29,7 +29,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".clean.CleanActivity"></activity>
+        <activity android:name=".clean.CleanActivity"
+                  android:theme="@android:style/Theme.Translucent"></activity>
 
         <service
             android:name=".MouseService"
@@ -47,6 +48,7 @@
                 <action android:name="android.NET.conn.CONNECTIVITY_CHANGE" />
                 <action android:name="android.Net.wifi.WIFI_STATE_CHANGED" />
                 <action android:name="android.net.wifi.STATE_CHANGE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
     </application>

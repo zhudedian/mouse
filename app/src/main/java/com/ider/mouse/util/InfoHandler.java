@@ -27,6 +27,19 @@ public class InfoHandler implements RequestHandler {
         info = unicodetoString(info);
         if (info.equals("\"requestInfo\"")){
             response.setEntity(new StringEntity(MyData.editText, "utf-8"));
+        }else if (info.contains("\"closeIME\"")){
+            String infos = info.replace("\"closeIME\"","");
+            Intent intent = new Intent("commitMobileInfo");
+            intent.putExtra("info",infos);
+            MyApplication.getContext().sendBroadcast(intent);
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            intent = new Intent("closeInputIME");
+            MyApplication.getContext().sendBroadcast(intent);
+            response.setEntity(new StringEntity("success", "utf-8"));
         }else {
             Intent intent = new Intent("commitMobileInfo");
             intent.putExtra("info",info);

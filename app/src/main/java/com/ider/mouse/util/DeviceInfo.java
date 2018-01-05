@@ -1,6 +1,9 @@
 package com.ider.mouse.util;
 
+import android.app.Service;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
@@ -20,13 +23,10 @@ import java.io.IOException;
 public class DeviceInfo {
 
     public static String getAllInfo(Context context){
-        return "固件版本："+Build.DISPLAY+"\n"+
-                "设备型号："+Build.MODEL+"\n"+
-                "机型："+Build.DEVICE+"\n"+
-                "芯片："+getCpuName()+"\n"+
-                "容量："+getSDCardStorage(context)+"\n"+
-                "内存："+getTotalMemorySize(context)+"\n"+
-                "当前分辨率："+getResolutionValue();
+        return "设备型号："+Build.MODEL+"\n"+
+                "固件版本："+Build.DISPLAY+"\n"+
+                "当前分辨率："+getResolutionValue()+"\n"+
+                "网络连接："+getConnectInfo(context);
 
     }
     public static String getResolutionValue(){
@@ -142,5 +142,24 @@ public class DeviceInfo {
         Long kbl = Long.valueOf(kb);
         int mb = (int) (kbl / 1024);
         return String.valueOf(mb) + "M";
+    }
+    public static String getConnectInfo(Context context){
+        if (isEthernetConnected(context)){
+            return "有线网络已连接";
+        }else if (isWifiConnected(context)){
+            return "无线网络已连接";
+        }
+        return "网络未连接";
+    }
+    private static boolean isEthernetConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Service.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getNetworkInfo(ConnectivityManager.TYPE_ETHERNET);
+        return info.isConnected() && info.isAvailable();
+    }
+    private static boolean isWifiConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Service.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        return info.isConnected() && info.isAvailable();
+
     }
 }

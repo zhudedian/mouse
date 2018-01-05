@@ -65,13 +65,13 @@ public class ApplicationUtil {
                 }
                 versionCode = packageInfo.versionCode;
                 versionName = packageInfo.versionName;
-                Log.i(TAG,  "versionCode="+versionCode+"versionName="+versionName);
+//                Log.i(TAG,  "versionCode="+versionCode+"versionName="+versionName);
             }else {
                 versionCode = 0;
                 versionName = "0";
-                Log.i(TAG, "versionCode==null");
+//                Log.i(TAG, "versionCode==null");
             }
-            Log.i(TAG, "labelName ="+labelName+"type ="+type);
+//            Log.i(TAG, "labelName ="+labelName+"type ="+type);
             String picName = packageName + ".jpg";
             saveBitmap(drawableToBitmap(drawable),picName);
             enties.add(new App(packageName,labelName,type,versionCode,versionName));
