@@ -215,6 +215,9 @@ public class RequestFileHandler implements RequestHandler {
 
 //        Log.i("mFilePath",mFilePath);
         mFile = new File(mFilePath);
+        if (!mFile.exists()){
+            mFilePath ="/storage";
+        }
         info = mFilePath;
         if (mFilePath.equals("/storage")){
             List<DiskUtil.StorageInfo> storageInfos = DiskUtil.getAvaliableStorage();
