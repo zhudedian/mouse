@@ -40,6 +40,19 @@ public class InfoHandler implements RequestHandler {
             intent = new Intent("closeInputIME");
             MyApplication.getContext().sendBroadcast(intent);
             response.setEntity(new StringEntity("success", "utf-8"));
+        }else if (info.contains("\"okayIME\"")){
+            String infos = info.replace("\"okayIME\"","");
+            Intent intent = new Intent("commitMobileInfo");
+            intent.putExtra("info",infos);
+            MyApplication.getContext().sendBroadcast(intent);
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            intent = new Intent("okayInputIME");
+            MyApplication.getContext().sendBroadcast(intent);
+            response.setEntity(new StringEntity("success", "utf-8"));
         }else {
             Intent intent = new Intent("commitMobileInfo");
             intent.putExtra("info",info);

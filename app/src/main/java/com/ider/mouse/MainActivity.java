@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        ip = "http://"+getHostIP()+":8080/app";
+        ip = "http://"+getHostIP()+":8080/yzg";
 
 //        final String filePath = getFileRoot(MainActivity.this) + File.separator
 //                + "qr_" + System.currentTimeMillis() + ".jpg";

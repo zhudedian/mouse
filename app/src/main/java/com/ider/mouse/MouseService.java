@@ -114,7 +114,7 @@ public class MouseService extends Service {
                 .registerHandler("upload", new RequestUploadHandler(handler))
                 .registerHandler("install",new RequestInstallHandler(handler))
                 .registerHandler("down", new RequestFileHandler())
-                .registerHandler("app",new RequestAppIconHandler())
+                .registerHandler("yzg",new RequestAppIconHandler())
                 .registerHandler("info",new InfoHandler())
                 .timeout(10 * 1000) // 默认10 * 1000毫秒。
                 .website(wesite)
