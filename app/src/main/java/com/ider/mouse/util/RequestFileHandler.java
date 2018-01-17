@@ -1,10 +1,10 @@
 package com.ider.mouse.util;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
+import android.content.pm.PackageInstaller;
 import android.os.PowerManager;
-import android.util.Log;
 
 import com.ider.mouse.MyApplication;
 import com.ider.mouse.clean.CleanActivity;
@@ -86,10 +86,23 @@ public class RequestFileHandler implements RequestHandler {
             mFilePath = parentPath;
         }else if (comments.contains("\"uninstall=\"")){
             comments= comments.replace("\"uninstall=\"","");
-            Intent intent = new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + comments));
-//            intent.putExtra("no_confirm",true);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            MyApplication.getContext().startActivity(intent);
+//            Runtime.getRuntime().exec("pm uninstall -k "+comments);
+            String appPackage = comments;
+            Intent intent = new Intent(MyApplication.getContext(), MyApplication.getContext().getClass());
+            PendingIntent sender = PendingIntent.getActivity(MyApplication.getContext(), 0, intent, 0);
+            PackageInstaller mPackageInstaller = MyApplication.getContext().getPackageManager().getPackageInstaller();
+            mPackageInstaller.uninstall(appPackage, sender.getIntentSender());
+//            Intent intent = new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + comments));
+////            intent.putExtra("no_confirm",true);
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            MyApplication.getContext().startActivity(intent);
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            response.setStatusCode(200);
+            response.setEntity(new StringEntity("success", "utf-8"));
             return;
         }else if (comments.contains("\"createDir=\"")){
             comments= comments.replace("\"createDir=\"","");

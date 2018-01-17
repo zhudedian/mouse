@@ -40,7 +40,7 @@ public class RequestInstallHandler implements RequestHandler {
     @Override
     public void handle(HttpRequest request, HttpResponse response, HttpContext context) throws HttpException, IOException {
         // HttpFileUpload.isMultipartContent(request) // DELETE、PUT、POST method。
-        Log.i("filepath","handle(HttpRequest request");
+//        Log.i("filepath","handle(HttpRequest request");
         if (!HttpFileUpload.isMultipartContentWithPost(request)) { // Is POST and upload.
             response(403, "You must upload file.", response);
         } else {
@@ -52,19 +52,19 @@ public class RequestInstallHandler implements RequestHandler {
             }else {
                 saveDirectory.mkdirs();
             }
-            Log.i("filepath", Environment.getExternalStorageDirectory().getPath());
-            Log.i("filepath","saveDirectory.isDirectory()");
+//            Log.i("filepath", Environment.getExternalStorageDirectory().getPath());
+//            Log.i("filepath","saveDirectory.isDirectory()");
             if (saveDirectory.isDirectory()) {
-                Log.i("filepath","saveDirectory.isDirectory()2");
+//                Log.i("filepath","saveDirectory.isDirectory()2");
                 try {
-                    Log.i("filepath","saveDirectory.isDirectory()3");
+//                    Log.i("filepath","saveDirectory.isDirectory()3");
                     processFileUpload(request, saveDirectory,response);
                 } catch (Exception e) {
                     e.printStackTrace();
                     response(500, "Save the file when the error occurs.", response);
                 }
             } else {
-                Log.i("filepath","The server can not save the file.");
+//                Log.i("filepath","The server can not save the file.");
                 response(500, "The server can not save the file.", response);
             }
         }
@@ -99,14 +99,14 @@ public class RequestInstallHandler implements RequestHandler {
 
         // Set upload process listener.
         // fileUpload.setProgressListener(new ProgressListener(){...});
-        Log.i("filepath","for (FileItem");
+//        Log.i("filepath","for (FileItem");
         List<FileItem> fileItems = fileUpload.parseRequest(new HttpUploadContext((HttpEntityEnclosingRequest) request));
-        Log.i("filepath","for (FileItem2");
-        Log.i("FileItem",fileItems.size()+"");
+//        Log.i("filepath","for (FileItem2");
+//        Log.i("FileItem",fileItems.size()+"");
         for (FileItem fileItem : fileItems) {
-            Log.i("filepath","for (FileItem3");
+//            Log.i("filepath","for (FileItem3");
             if (!fileItem.isFormField()) { // File param.
-                Log.i("filepath","if (!fileItem.isFormField())");
+//                Log.i("filepath","if (!fileItem.isFormField())");
                 // Attribute.
                 // fileItem.getContentType();
                 // fileItem.getFieldName();
