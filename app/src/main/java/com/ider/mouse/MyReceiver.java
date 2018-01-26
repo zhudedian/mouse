@@ -8,6 +8,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
+import com.ider.mouse.util.NetUtil;
+
 public class MyReceiver extends BroadcastReceiver {
     private Context mContext = MyApplication.getContext();
     public MyReceiver() {
@@ -15,10 +17,9 @@ public class MyReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        if (action.equals("android.intent.action.BOOT_COMPLETED")){
-            Intent service = new Intent(context,MouseService.class);
+        if (NetUtil.isNetworkAvailable(context)) {
+            Intent service = new Intent(context, MouseService.class);
             context.startService(service);
-            return;
         }
         Intent intent1 = new Intent("networkChange");
         mContext.sendBroadcast(intent1);

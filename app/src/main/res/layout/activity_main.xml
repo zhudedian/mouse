@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="10dp"
     android:layout_height="10dp"
-
+    android:background="@drawable/back_ground"
     tools:context="com.ider.mouse.MainActivity">
 
 
@@ -63,7 +63,8 @@
 
     <ImageView
         android:id="@+id/image_view"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:layout_centerInParent="true"/>
+        android:layout_width="210dp"
+        android:layout_height="210dp"
+        android:layout_marginTop="245dp"
+        android:layout_marginLeft="245dp"/>
 </RelativeLayout>

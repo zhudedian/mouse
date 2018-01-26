@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ider.mouse.util.DiskUtil;
+import com.ider.mouse.util.NetUtil;
 import com.ider.mouse.util.QRCodeUtil;
 import com.ider.mouse.util.SocketServer;
 import com.yanzhenjie.andserver.Server;
@@ -66,43 +67,44 @@ public class MainActivity extends AppCompatActivity {
         setContentView(contentView);
         test = (TextView) findViewById(R.id.test);
         imageView = (ImageView)findViewById(R.id.image_view);
-        Intent intent = new Intent(MainActivity.this,MouseService.class);
-        startService(intent);
-        //finish();
-        Log.i("getHOstIP",getHostIP()+" ");
-        if (getHostIP() == null){
-            imageView.setVisibility(View.GONE);
-            test.setVisibility(View.VISIBLE);
-            test.setText("未连接网络");
-            return;
-        }
+        if (NetUtil.isNetworkAvailable(MainActivity.this)) {
+            Intent intent = new Intent(MainActivity.this, MouseService.class);
+            startService(intent);
+            //finish();
+            Log.i("getHOstIP", getHostIP() + " ");
+            if (getHostIP() == null) {
+                imageView.setVisibility(View.GONE);
+                test.setVisibility(View.VISIBLE);
+                test.setText("未连接网络");
+                return;
+            }
 
-        ip = "http://"+getHostIP()+":8080/yzg";
+            ip = "http://" + getHostIP() + ":8080/yzg";
 
 //        final String filePath = getFileRoot(MainActivity.this) + File.separator
 //                + "qr_" + System.currentTimeMillis() + ".jpg";
-        final String filePath = getFileRoot(MainActivity.this) + File.separator
-                + "qr_downloadPathPic.jpg";
+            final String filePath = getFileRoot(MainActivity.this) + File.separator
+                    + "qr_downloadPathPic.jpg";
 
-        //二维码图片较大时，生成图片、保存文件的时间可能较长，因此放在新线程中
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                boolean success = QRCodeUtil.createQRImage(ip, 300, 300,
-                        BitmapFactory.decodeResource(getResources(),R.mipmap.ic_launcher),
-                        filePath);
+            //二维码图片较大时，生成图片、保存文件的时间可能较长，因此放在新线程中
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    boolean success = QRCodeUtil.createQRImage(ip, 300, 300,
+                            BitmapFactory.decodeResource(getResources(), R.drawable.ic_new_launcher),
+                            filePath);
 
-                if (success) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            imageView.setImageBitmap(BitmapFactory.decodeFile(filePath));
-                        }
-                    });
+                    if (success) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                imageView.setImageBitmap(BitmapFactory.decodeFile(filePath));
+                            }
+                        });
+                    }
                 }
-            }
-        }).start();
-
+            }).start();
+        }
 //       init();
         //初始化
 //        initMouse();

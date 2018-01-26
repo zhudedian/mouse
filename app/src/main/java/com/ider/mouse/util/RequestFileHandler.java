@@ -90,8 +90,12 @@ public class RequestFileHandler implements RequestHandler {
             String appPackage = comments;
             Intent intent = new Intent(MyApplication.getContext(), MyApplication.getContext().getClass());
             PendingIntent sender = PendingIntent.getActivity(MyApplication.getContext(), 0, intent, 0);
-            PackageInstaller mPackageInstaller = MyApplication.getContext().getPackageManager().getPackageInstaller();
-            mPackageInstaller.uninstall(appPackage, sender.getIntentSender());
+            PackageInstaller mPackageInstaller = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                mPackageInstaller = MyApplication.getContext().getPackageManager().getPackageInstaller();
+                mPackageInstaller.uninstall(appPackage, sender.getIntentSender());
+            }
+
 //            Intent intent = new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + comments));
 ////            intent.putExtra("no_confirm",true);
 //            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
