@@ -9,6 +9,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.inputmethodservice.InputMethodService;
 import android.net.ConnectivityManager;
@@ -37,7 +38,7 @@ import com.ider.mouse.util.SocketServer;
 import com.ider.mouse.view.MouseView;
 import com.yanzhenjie.andserver.AndServer;
 import com.yanzhenjie.andserver.Server;
-import com.yanzhenjie.andserver.website.StorageWebsite;
+import com.yanzhenjie.andserver.website.AssetsWebsite;
 import com.yanzhenjie.andserver.website.WebSite;
 
 import java.io.File;
@@ -106,11 +107,14 @@ public class MouseService extends Service {
             e.printStackTrace ();
         }
         startConnect();
-        File file = new File("/system/", "preinstall");
-        String websiteDirectory = file.getAbsolutePath();
-        WebSite wesite = new StorageWebsite(websiteDirectory);
+//        File file = new File("/system/", "preinstall");
+//        String websiteDirectory = file.getAbsolutePath();
+//        WebSite wesite = new StorageWebsite(websiteDirectory);
+        AssetManager mAssetManager = getAssets();
+
+        WebSite wesite = new AssetsWebsite(mAssetManager, "");
         MyData.andServer = new AndServer.Build()
-                .port(8080) // 默认是8080，Android平台允许的端口号都可以。
+                .port(8083) // 默认是8080，Android平台允许的端口号都可以。
                 .registerHandler("upload", new RequestUploadHandler(handler))
                 .registerHandler("install",new RequestInstallHandler(handler))
                 .registerHandler("down", new RequestFileHandler())

@@ -6,20 +6,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Handler;
 import android.util.Log;
 
 import com.ider.mouse.util.NetUtil;
 
 public class MyReceiver extends BroadcastReceiver {
     private Context mContext = MyApplication.getContext();
+    private Handler handler = new Handler();
     public MyReceiver() {
     }
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         if (NetUtil.isNetworkAvailable(context)) {
-            Intent service = new Intent(context, MouseService.class);
-            context.startService(service);
+            Intent service = new Intent(mContext, MouseService.class);
+            mContext.startService(service);
         }
         Intent intent1 = new Intent("networkChange");
         mContext.sendBroadcast(intent1);
@@ -44,4 +46,11 @@ public class MyReceiver extends BroadcastReceiver {
 //        }.start();
 
     }
+//    Runnable serviceStart = new Runnable() {
+//        @Override
+//        public void run() {
+//            Intent service = new Intent(mContext, MouseService.class);
+//            mContext.startService(service);
+//        }
+//    };
 }

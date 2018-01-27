@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -67,6 +69,30 @@ public class MainActivity extends AppCompatActivity {
         setContentView(contentView);
         test = (TextView) findViewById(R.id.test);
         imageView = (ImageView)findViewById(R.id.image_view);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        registerReceiver(netReceiver, filter);
+
+    }
+    protected void onResume(){
+        super.onResume();
+//        List<DiskUtil.StorageInfo> list = DiskUtil.listAllStorage();
+//        DiskUtil.getAvaliableStorage(list);
+    }
+    BroadcastReceiver netReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            initData();
+        }
+    };
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(netReceiver);
+    }
+    private void initData(){
         if (NetUtil.isNetworkAvailable(MainActivity.this)) {
             Intent intent = new Intent(MainActivity.this, MouseService.class);
             startService(intent);
@@ -77,9 +103,12 @@ public class MainActivity extends AppCompatActivity {
                 test.setVisibility(View.VISIBLE);
                 test.setText("未连接网络");
                 return;
+            }else {
+                imageView.setVisibility(View.VISIBLE);
+                test.setVisibility(View.GONE);
             }
 
-            ip = "http://" + getHostIP() + ":8080/yzg";
+            ip = "http://" + getHostIP() + ":8083/yzg.apk";
 
 //        final String filePath = getFileRoot(MainActivity.this) + File.separator
 //                + "qr_" + System.currentTimeMillis() + ".jpg";
@@ -104,78 +133,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }).start();
+        }else {
+            imageView.setVisibility(View.GONE);
+            test.setVisibility(View.VISIBLE);
+            test.setText("未连接网络");
         }
-//       init();
-        //初始化
-//        initMouse();
-//        showMouse();
-//        try {
-//
-//            server=new SocketServer ( 7777 );
-//            /**socket服务端开始监听*/
-//            server.beginListen ( );
-//
-//        }catch (Exception e){
-////            Toast.makeText ( MainActivity.this,"请输入数字", Toast.LENGTH_SHORT ).show ();
-//            e.printStackTrace ();
-//        }
-//        SocketServer.ServerHandler = new Handler( ){
-//            @Override
-//            public void handleMessage(Message msg) {
-//                Log.i("taggg",msg.obj.toString());
-//                String[] pos = msg.obj.toString().split(" ");
-//                int x;
-//                int y;
-//                Log.i("tag", "pos.length=" + pos.length);
-//                if (pos[0].equals("onSingleTapUp")){
-//                    mMouseManager.click();
-//                    mMouseManager.resert();
-//                    return;
-//                }
-//                if (pos[0].equals("nexttouch")){
-//                    mMouseManager.resert();
-//                    return;
-//                }
-//                if (pos[0].equals("scolor")){
-//                    y = Integer.parseInt(pos[1]);
-//                    mMouseManager.move(y);
-//
-//                    return;
-//                }
-//                try {
-//                    if (pos.length == 3) {
-//                        if (!pos[0].equals("") && !pos[1].equals("")) {
-//                            x = Integer.parseInt(pos[0]);
-//                            y = Integer.parseInt(pos[1]);
-//                            Log.i("tag", "x=" + x + "y=" + y);
-//                            mMouseManager.move(x, y);
-//                        }
-//                    }
-//                }catch (Exception e){
-//                    e.printStackTrace();
-//                }
-//
-//
-//
-//
-////                    Log.i("tag", "x=" + x + "y=" + y);
-////                    mMouseManager.move(x,x2, y ,y2);
-//
-//
-//
-////                server.sendMessage ( "success" );
-//            }
-//        };
-        //registReceivers();
-//        finish();
-
-
-
-    }
-    protected void onResume(){
-        super.onResume();
-//        List<DiskUtil.StorageInfo> list = DiskUtil.listAllStorage();
-//        DiskUtil.getAvaliableStorage(list);
     }
     private String getFileRoot(Context context) {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {

@@ -19,18 +19,7 @@
         android:textSize="24dp" />
 
     <!-- Login progress -->
-    <TextView
-        android:id="@+id/test"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="gone"
-        android:layout_marginLeft="100dp"
-        android:layout_marginTop="200dp"
-        android:textColor="#f79b9b"
-        android:background="#8f8989"
-        android:textSize="40dp"
-        android:text="test"/>
+
 
     <LinearLayout
         android:id="@+id/login_status"
@@ -67,4 +56,15 @@
         android:layout_height="210dp"
         android:layout_marginTop="245dp"
         android:layout_marginLeft="245dp"/>
+    <TextView
+        android:id="@+id/test"
+        android:layout_width="210dp"
+        android:layout_height="210dp"
+        android:visibility="gone"
+        android:layout_marginTop="245dp"
+        android:layout_marginLeft="245dp"
+        android:gravity="center"
+        android:textColor="#f79b9b"
+        android:textSize="30sp"
+        android:text="test"/>
 </RelativeLayout>
