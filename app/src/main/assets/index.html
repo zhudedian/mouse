@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1"/>
+	<title>欢迎使用易掌柜手机助手</title>
+</head>
+<body>
+	<style type="text/css">
+	*{margin:0; padding:0;}
+	img{max-width: 100%; height: auto;}
+	.test{height: 600px; max-width: 600px; font-size: 40px;}
+	</style>
+	<div id="box">
+        <div id="pic" style="text-align:center">
+            <img src="image/ic_launcher.png" alt="qr">
+            <div id="title">
+                <h2 >易掌柜手机助手</h2>
+                <h3 >v1.0.0</h3>
+            </div>
+            <div id="introduce">
+            	<p>手机遥控，鼠标，手机输入文字。</p>
+                <p>管理盒子的应用，管理盒子中文件</p>
+                <p>可以实现盒子与手机文件互相传输</p>
+                <p>截图等更多功能</p>
+            </div>
+        </div>
+        <div id="loading" style="text-align:center">
+            <a id='load_android' href="yzg.apk">
+            	<img border="0" src="image/download_bt.png" width="248" height="128"/>
+            </a>
+        </div>
+        <div id="shade" style="display: none">
+            <p>在微信中无法下载app,<br>请打开左上角按钮选择<span>【在浏览器打开】</span>进行下载</p>
+            <img id='img' src="image/3.png" alt="pic">
+        </div>
+</div>
+	<script type="text/javascript">
+		function is_weixin() {
+		    var ua = navigator.userAgent.toLowerCase();
+		    if (ua.match(/MicroMessenger/i) == "micromessenger") {
+		        return true;
+		    } else {
+		        return false;
+		    }
+		}
+		var isWeixin = is_weixin();
+		var winHeight = typeof window.innerHeight != 'undefined' ? window.innerHeight : document.documentElement.clientHeight;
+		console.log(winHeight);
+		function loadHtml(){
+			var div = document.createElement('div');
+			div.id = 'weixin-tip';
+			div.innerHTML = '<p><img src="image/live_weixin.png" alt="微信打开"/></p>';
+			document.body.appendChild(div);
+		}
+		
+		function loadStyleText(cssText) {
+	        var style = document.createElement('style');
+	        style.rel = 'stylesheet';
+	        style.type = 'text/css';
+	        try {
+	            style.appendChild(document.createTextNode(cssText));
+	        } catch (e) {
+	            style.styleSheet.cssText = cssText; //ie9以下
+	        }
+            var head=document.getElementsByTagName("head")[0]; //head标签之间加上style样式
+            head.appendChild(style); 
+	    }
+	    var cssText = "#weixin-tip{position: fixed; left:0; top:0; background: rgba(0,0,0,0.8); filter:alpha(opacity=80); width: 100%; height:100%; z-index: 100;} #weixin-tip p{text-align: center; margin-top: 10%; padding:0 5%;}";
+		if(isWeixin){
+			loadHtml();
+			loadStyleText(cssText);
+		}
+	</script>
+</body>
+</html>

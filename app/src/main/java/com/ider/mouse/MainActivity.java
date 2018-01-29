@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                 test.setVisibility(View.GONE);
             }
 
-            ip = "http://" + getHostIP() + ":8083/yzg.apk";
+            ip = "http://" + getHostIP() + ":8083/index.html";
 
 //        final String filePath = getFileRoot(MainActivity.this) + File.separator
 //                + "qr_" + System.currentTimeMillis() + ".jpg";

@@ -76,7 +76,7 @@ public class MouseView {
         mLayoutParams.height = 30;
         //将视图添加到Window中
         mWindowManager.addView(mFloatView, mLayoutParams);
-        handler.sendEmptyMessage(0);
+        handler.sendEmptyMessage(1);
         updateFloatView();
     }
     public void down(){
